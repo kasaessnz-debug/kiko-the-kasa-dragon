@@ -37,5 +37,20 @@ export default async (req) => {
       <p>The booking is now marked <b>Deposit paid</b> in Kiko HQ. Confirm the details with the customer, then set it to <b>Confirmed</b>.</p>
       ${result === "orphan" ? "<p><b>Heads-up:</b> that reference wasn’t in the dashboard, so a new card was made for it.</p>" : ""}`),
   });
+
+  // and a friendly confirmation to the customer (Stripe also sends its own receipt)
+  const to = s.customer_details?.email || s.customer_email;
+  const first = String(s.customer_details?.name || "").trim().split(/\s+/)[0];
+  if (to) {
+    await sendMail({
+      to, replyTo: process.env.KIKO_NOTIFY_EMAIL,
+      subject: `Deposit received — Kiko is booked! (${s.metadata.booking_ref})`,
+      html: shell("Your Kiko date is locked in!", `<p>Hi ${esc(first || "there")},</p>
+        <p>We’ve received your deposit of <b>A$${amount}</b> for booking <b>${esc(s.metadata.booking_ref)}</b>${s.metadata.event_date ? ` on <b>${esc(s.metadata.event_date)}</b>` : ""}. Thank you!</p>
+        <p>Your date is now held for Kiko. We’ll be in touch before the event to confirm timings, arrival details and anything else Kiko needs to know.</p>
+        <p>Your payment receipt comes separately from Stripe. Any questions, just reply to this email.</p>
+        <p>Big smiles,<br>Kiko — The KASA Dragon 🐉</p>`),
+    });
+  }
   return new Response("ok");
 };
