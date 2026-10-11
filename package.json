@@ -1,0 +1,10 @@
+{
+  "name": "kiko-the-kasa-dragon",
+  "private": true,
+  "type": "module",
+  "description": "Kiko \u2014 The KASA Dragon website (static) + Netlify function for booking deposits",
+  "dependencies": {
+    "stripe": "^23.0.0",
+    "@netlify/blobs": "^11.1.0"
+  }
+}

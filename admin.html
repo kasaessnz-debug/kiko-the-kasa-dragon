@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Kiko HQ</title>
+<link rel="icon" href="/assets/img/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/icon-180.png">
+<link rel="manifest" href="/admin.webmanifest">
+<meta name="theme-color" content="#0f3d2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kiko HQ">
+<style>
+@font-face{font-family:"Shantell";src:url(/assets/fonts/shantell.woff2) format("woff2");font-weight:600 800;font-display:swap}
+@font-face{font-family:"Figtree";src:url(/assets/fonts/figtree.woff2) format("woff2");font-weight:300 900;font-display:swap}
+:root{--gum:#13843f;--gum-deep:#0b6630;--leaf:#5fa420;--forest:#0f3d2a;--muted:#55705f;--sun:#ffcf3a;--lolly:#d92e6c;--sky:#2f8fd8;--wattle:#ff8a1e;
+  --bg:#f3f8f2;--card:#fff;--line:#dbe8dd;--soft:#eef5ef;--display:"Shantell","Figtree",system-ui,sans-serif;--body:"Figtree",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--forest);font:400 15px/1.5 var(--body)}
+button,select,input,textarea{font:inherit;color:inherit}
+a{color:var(--gum)}
+[hidden]{display:none!important}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:999px;padding:9px 15px;background:var(--gum);color:#fff;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;min-height:40px}
+.btn:hover{background:var(--gum-deep)}
+.btn.ghost{background:var(--soft);color:var(--forest)}.btn.ghost:hover{background:#e0ede2}
+.btn.sun{background:var(--sun);color:var(--forest)}.btn.sun:hover{background:#ffc414}
+.btn.danger{background:#fde4ee;color:#a81e52}
+.btn.sm{padding:6px 12px;font-size:.88rem;min-height:34px}
+:is(.btn,select,input,textarea,.chip,.tabs button,.cal-day,.ev):focus-visible{outline:3px solid var(--wattle);outline-offset:2px}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* sign in */
+.login{max-width:380px;margin:12vh auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;text-align:center}
+.login img{width:84px;height:84px;border-radius:50%;background:var(--sun);margin:0 auto 10px;display:block}
+.login h2{font:800 1.6rem/1.1 var(--display);margin:0 0 6px}
+.login input{width:100%;margin:16px 0 10px;padding:12px 14px;border-radius:12px;border:2px solid var(--line)}
+.err{color:var(--lolly);min-height:1.4em;margin:6px 0 0}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));background:var(--forest);color:#fff}
+.top img{width:38px;height:38px;border-radius:50%;background:var(--sun)}
+.top h1{font:800 1.3rem/1 var(--display);margin:0}
+.top .sync{font-size:.8rem;opacity:.8;margin-left:4px}
+.top .sp{flex:1}
+.top .btn.ghost{background:rgba(255,255,255,.12);color:#fff}.top .btn.ghost:hover{background:rgba(255,255,255,.22)}
+@media (max-width:640px){.top .sync,.top .hide-sm{display:none}}
+main{max-width:1240px;margin:0 auto;padding:16px 16px 80px}
+
+/* setup checklist */
+.setup{background:#fff8e1;border:1px solid #ffe6a3;border-radius:16px;padding:12px 16px;margin-bottom:14px}
+.setup b{font-family:var(--display)}
+.setup ul{margin:6px 0 0;padding-left:20px}
+.setup li{margin:2px 0}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;text-align:left;cursor:pointer}
+.tile:hover{border-color:var(--gum)}
+.tile b{display:block;font:800 1.75rem/1.1 var(--display);font-variant-numeric:tabular-nums}
+.tile span{color:var(--muted);font-size:.86rem}
+.tile.new b{color:var(--lolly)}.tile.q b{color:#b45f00}.tile.dep b,.tile.val b{color:var(--gum)}
+@media (max-width:900px){.tiles{grid-template-columns:repeat(2,1fr);gap:8px}.tile{padding:10px 12px}.tile b{font-size:1.45rem}.tile span{font-size:.8rem}.tile.val{grid-column:1/-1}}
+
+/* tabs + tools */
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 15px;cursor:pointer;font-weight:700;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--forest);color:#fff;border-color:var(--forest)}
+.tabs .n{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:999px;background:var(--lolly);color:#fff;font-size:.75rem;line-height:20px}
+.layout{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+@media (max-width:1000px){.layout{grid-template-columns:1fr}}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.tools input,.tools select{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;min-height:40px}
+.tools input{flex:1;min-width:180px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:.85rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--sun);border-color:var(--sun);font-weight:700}
+
+/* list cards */
+.list{display:grid;gap:10px}
+.item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;border-left:6px solid var(--line)}
+.item[data-s="New"]{border-left-color:var(--lolly)}.item[data-s="Contacted"]{border-left-color:var(--sky)}.item[data-s="Quoted"]{border-left-color:var(--wattle)}
+.item[data-s="Deposit paid"],.item[data-s="Confirmed"]{border-left-color:var(--gum)}.item[data-s="Completed"]{border-left-color:#9bb5a6}.item[data-s="Lost"]{border-left-color:#cfd8d2;opacity:.7}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ref{font:800 1.05rem/1.2 var(--display);background:none;border:0;padding:0;cursor:pointer;color:var(--forest);text-align:left}
+.ref:hover{color:var(--gum)}
+.pill{font-size:.76rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--soft);white-space:nowrap}
+.pill[data-s="New"]{background:#fde4ee;color:#a81e52}.pill[data-s="Quoted"]{background:#ffeeda;color:#a85400}.pill[data-s="Contacted"]{background:#e1f0fb;color:#1c5f93}
+.pill[data-s="Deposit paid"],.pill[data-s="Confirmed"]{background:#dff3e5;color:var(--gum-deep)}
+.pill.warn{background:#fff1c2;color:#7a5600}
+.when{margin-left:auto;color:var(--muted);font-size:.84rem}
+.meta{margin:6px 0 0;color:var(--muted)}
+.meta strong{color:var(--forest)}
+.who{margin:4px 0 0}
+.money{margin:6px 0 0;display:flex;gap:6px;flex-wrap:wrap}
+.qrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.qrow select{padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:#fbfdfb;min-height:36px}
+.empty{text-align:center;color:var(--muted);padding:30px 10px;background:#fff;border:2px dashed var(--line);border-radius:16px}
+
+/* side */
+.side{display:grid;gap:12px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.panel h3{font:800 1.08rem/1.2 var(--display);margin:0 0 8px}
+.up{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.up li{display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center;cursor:pointer}
+.up .d{background:var(--sun);border-radius:12px;text-align:center;padding:5px 0;font-weight:800;line-height:1.1}
+.up .d small{display:block;font-weight:600;font-size:.72rem}
+.todo{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.todo li{display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 8px;border-radius:10px;background:var(--soft)}
+.todo li:hover{background:#e0ede2}
+.todo b{font-weight:700}
+
+/* calendar */
+.cal-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.cal-head h2{font:800 1.4rem/1.1 var(--display);margin:0 8px 0 0;min-width:170px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .dow{font-size:.75rem;font-weight:700;color:var(--muted);text-align:center;padding:2px 0}
+.cal-day{min-height:96px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:5px;display:flex;flex-direction:column;gap:3px;cursor:pointer;text-align:left;overflow:hidden}
+.cal-day:hover{border-color:var(--gum)}
+.cal-day.out{background:transparent;border-style:dashed;opacity:.55}
+.cal-day.today{border:2px solid var(--gum)}
+.cal-day.clash{background:#fff4f7}
+.cal-day .dn{font-size:.8rem;font-weight:700;color:var(--muted)}
+.cal-day.today .dn{color:var(--gum)}
+.ev{display:block;width:100%;border:0;border-radius:7px;padding:2px 6px;font-size:.76rem;font-weight:700;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;background:var(--soft);color:var(--forest)}
+.ev[data-s="New"],.ev[data-s="Contacted"],.ev[data-s="Quoted"]{background:#fff;border:1.5px dashed var(--wattle);color:#8a4a00}
+.ev[data-s="Deposit paid"],.ev[data-s="Confirmed"]{background:var(--gum);color:#fff}
+.ev[data-s="Completed"]{background:#c9d9cf}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin:10px 0}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px;background:var(--gum)}
+.legend .t::before{background:#fff;border:1.5px dashed var(--wattle)}.legend .c::before{background:#fff4f7;border:1px solid #f3b8cb}
+@media (max-width:700px){.cal-day{min-height:58px;padding:3px}.ev{font-size:0;height:8px;padding:0;border-radius:4px;pointer-events:none}.cal-day .dn{font-size:.72rem}}
+.feed{display:grid;gap:8px}
+.feed code{display:block;padding:8px 10px;background:var(--soft);border-radius:10px;font-size:.78rem;overflow-wrap:anywhere}
+
+/* drawer */
+dialog{border:0;padding:0;margin:0 0 0 auto;height:100%;max-height:100%;width:min(560px,100%);background:#fff;color:var(--forest);box-shadow:-20px 0 60px rgba(15,61,42,.25)}
+dialog::backdrop{background:rgba(15,61,42,.35)}
+.dw-head{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 18px;display:flex;gap:10px;align-items:center;z-index:2}
+.dw-head h2{font:800 1.3rem/1.15 var(--display);margin:0;flex:1}
+.dw-body{padding:16px 18px 40px;display:grid;gap:16px}
+.dw-sec h3{font:800 1rem/1.2 var(--display);margin:0 0 8px;color:var(--gum-deep)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.grid2{grid-template-columns:1fr}}
+label.f{display:grid;gap:3px;font-size:.84rem;font-weight:700;color:var(--muted)}
+label.f.full{grid-column:1/-1}
+.f input,.f select,.f textarea{width:100%;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:#fbfdfb;font-weight:400;color:var(--forest);min-height:40px}
+.f textarea{min-height:80px;resize:vertical}
+dl{display:grid;grid-template-columns:140px 1fr;gap:5px 12px;margin:0}
+dt{color:var(--muted)}dd{margin:0;overflow-wrap:anywhere}
+@media (max-width:480px){dl{grid-template-columns:1fr}dt{margin-top:6px}}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.hist{list-style:none;margin:0;padding:0;font-size:.86rem;color:var(--muted);display:grid;gap:3px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sum div{background:var(--soft);border-radius:12px;padding:8px 10px}
+.sum b{display:block;font:800 1.15rem/1.2 var(--display)}
+.sum span{font-size:.78rem;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--forest);color:#fff;padding:10px 16px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.fab{display:none}
+@media (max-width:640px){.fab{display:inline-flex;position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:15;box-shadow:0 8px 24px rgba(15,61,42,.3);min-height:52px;padding:0 20px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+</svg>
+
+<div class="login" id="login" hidden>
+  <img src="/assets/img/kiko-head-360.webp" alt="">
+  <h2>Kiko HQ</h2>
+  <p>Bookings, calendar, messages and deposits in one place.</p>
+  <form id="loginForm"><input id="pw" type="password" aria-label="Password" autocomplete="current-password" placeholder="Password" required><button class="btn" type="submit" style="width:100%">Sign in</button></form>
+  <p class="err" id="loginErr" role="alert"></p>
+</div>
+
+<div id="app" hidden>
+  <header class="top">
+    <img src="/assets/img/kiko-head-360.webp" alt=""><h1>Kiko HQ</h1><span class="sync" id="sync"></span><span class="sp"></span>
+    <button class="btn sun sm hide-sm" type="button" data-new><svg class="i"><use href="#plus"/></svg>New booking</button>
+    <button class="btn ghost sm" id="refresh" type="button" aria-label="Refresh"><svg class="i"><use href="#refresh"/></svg></button>
+    <button class="btn ghost sm hide-sm" id="csv" type="button">Export</button>
+    <button class="btn ghost sm" id="logout" type="button">Sign out</button>
+  </header>
+  <main>
+    <div class="setup" id="setup" hidden></div>
+    <section class="tiles" aria-label="Summary">
+      <button class="tile new" type="button" data-jump="New"><b id="tNew">0</b><span>New — need a reply</span></button>
+      <button class="tile q" type="button" data-jump="Quoted"><b id="tQuoted">0</b><span>Quoted — waiting on deposit</span></button>
+      <button class="tile dep" type="button" data-jump="Deposit paid"><b id="tDep">A$0</b><span id="tDepN">Deposits paid</span></button>
+      <button class="tile" type="button" data-jump="cal"><b id="tUp">0</b><span>Booked events, next 30 days</span></button>
+      <button class="tile val" type="button" data-jump="Confirmed"><b id="tVal">A$0</b><span>Booked value (quotes on paid/confirmed)</span></button>
+    </section>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="booking">Bookings<span class="n" id="nBook" hidden></span></button>
+      <button role="tab" aria-selected="false" data-tab="cal">Calendar</button>
+      <button role="tab" aria-selected="false" data-tab="contact">Messages<span class="n" id="nMsg" hidden></span></button>
+      <button role="tab" aria-selected="false" data-tab="kiko-updates">Shop sign-ups</button>
+    </div>
+    <div class="layout">
+      <section>
+        <div id="listView">
+          <div class="tools"><input id="q" type="search" placeholder="Search name, organisation, suburb, reference, phone…" aria-label="Search">
+            <select id="sort" aria-label="Sort"><option value="new">Newest first</option><option value="event">By event date</option></select></div>
+          <div class="chips" id="chips"></div>
+          <div class="list" id="list"></div>
+        </div>
+        <div id="calView" hidden>
+          <div class="cal-head">
+            <h2 id="calTitle"></h2>
+            <button class="btn ghost sm" type="button" id="calPrev" aria-label="Previous month"><svg class="i"><use href="#left"/></svg></button>
+            <button class="btn ghost sm" type="button" id="calToday">Today</button>
+            <button class="btn ghost sm" type="button" id="calNext" aria-label="Next month"><svg class="i"><use href="#right"/></svg></button>
+          </div>
+          <div class="cal" id="cal"></div>
+          <div class="legend"><span>Booked (deposit paid / confirmed)</span><span class="t">Enquiry or quote — date not locked</span><span class="c">Two or more on one day</span></div>
+          <p style="margin:0;color:var(--muted);font-size:.9rem">Tap a day to see its bookings, or tap an empty day to add a booking on that date.</p>
+        </div>
+      </section>
+      <aside class="side">
+        <div class="panel"><h3>To do</h3><ul class="todo" id="todo"></ul></div>
+        <div class="panel"><h3>Coming up</h3><ul class="up" id="upcoming"></ul></div>
+        <div class="panel feed"><h3>Kiko bookings on your phone</h3>
+          <p style="margin:0;color:var(--muted);font-size:.9rem">Subscribe once and every booked Kiko event shows in your phone’s calendar by itself, with a reminder the day before.</p>
+          <div class="acts"><a class="btn sm" id="gcal" target="_blank" rel="noopener">Google Calendar</a><a class="btn sm ghost" id="ical">iPhone / Outlook</a><button class="btn sm ghost" type="button" id="copyFeed">Copy link</button></div>
+          <p style="margin:0;color:var(--muted);font-size:.8rem">Keep this link private — anyone with it can see your bookings.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <button class="btn sun fab" type="button" data-new><svg class="i"><use href="#plus"/></svg>New booking</button>
+</div>
+
+<dialog id="drawer" aria-labelledby="dwTitle">
+  <div class="dw-head"><h2 id="dwTitle">Booking</h2><span class="pill" id="dwPill"></span><button class="btn ghost sm" type="button" data-close aria-label="Close"><svg class="i"><use href="#x"/></svg></button></div>
+  <div class="dw-body" id="dwBody"></div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const API = '/.netlify/functions/kiko-admin';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  let items = [], statuses = [], site = location.origin, tab = 'booking', filter = 'All', info = {}, openId = null, calMonth = new Date();
+  calMonth.setDate(1);
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const toast = t => { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 2200); };
+  const A$ = n => 'A$' + Number(n || 0).toLocaleString('en-AU', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const fmtDate = s => { if (!s) return ''; const d = new Date(s.length <= 10 ? s + 'T00:00:00' : s); return isNaN(d) ? s : d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); };
+  const fmtTime = t => { if (!/^\d{2}:\d{2}$/.test(t || '')) return t || ''; let [h, m] = t.split(':').map(Number); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return `${h}${m ? ':' + String(m).padStart(2, '0') : ''}${ap}`; };
+  const ago = s => { const m = (Date.now() - new Date(s)) / 60000; if (m < 60) return Math.max(1, m | 0) + ' min ago'; if (m < 1440) return (m / 60 | 0) + ' h ago'; return (m / 1440 | 0) + ' d ago'; };
+  const tel = p => String(p || '').replace(/[^\d+]/g, '');
+  const isBooking = i => i.form === 'booking' || i.form === 'deposit';
+  const BOOKED = ['Deposit paid', 'Confirmed', 'Completed'];
+  const LBL = { name: 'Name', organisation: 'Organisation', email: 'Email', phone: 'Phone', event_type: 'Event type', event_name: 'Event name', event_date: 'Event date', start_time: 'Start time', finish_time: 'Finish time', venue_suburb: 'Venue / suburb', state: 'State', attendance: 'Expected attendance', appearance_style: 'Appearance style', kiko_activities: 'Kiko should', event_details: 'About the event', heard_about: 'Heard about Kiko', reason: 'Reason', message: 'Message', first_name: 'First name', interest: 'Interested in', understand_not_confirmed: 'Understands not yet confirmed', utm_source: 'Came from (source)', utm_medium: 'Came from (medium)', utm_campaign: 'Campaign', referrer: 'Referring site', landing_page: 'First page visited' };
+  const HIDE = new Set(['form-name', 'bot-field', 'ip', 'user_agent']);
+  const nice = k => LBL[k] || k.replace(/[_-]+/g, ' ').replace(/^\w/, c => c.toUpperCase());
+  const val = v => Array.isArray(v) ? v.join(', ') : typeof v === 'object' && v ? JSON.stringify(v) : String(v);
+
+  const call = async (body, qs = '') => {
+    const r = await fetch(API + (body ? '' : '?action=list' + qs), body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin' } : { credentials: 'same-origin', cache: 'no-store' });
+    const d = await r.json().catch(() => ({ error: r.status === 404 ? 'Dashboard isn’t deployed yet.' : 'Something went wrong.' }));
+    if (r.status === 401) { show(false); throw new Error(d.error || 'Please sign in.'); }
+    if (!r.ok) throw new Error(d.error || 'Something went wrong.');
+    return d;
+  };
+  const show = on => { $('#app').hidden = !on; $('#login').hidden = on; if (!on) setTimeout(() => $('#pw').focus(), 50); };
+
+  let loading = false;
+  async function load(qs = '') {
+    if (loading) return; loading = true;
+    try {
+      const d = await call(null, qs); if (d.signedIn === false) { show(false); return; } items = d.items || []; statuses = d.statuses || []; info = d; if (d.site) site = d.site;
+      show(true); render();
+      if (openId && $('#drawer').open && !document.activeElement.closest('#drawer input,#drawer textarea,#drawer select')) openItem(openId);
+    } catch (e) { if (!$('#app').hidden) toast(e.message); else if (!/sign in/i.test(e.message)) { show(false); $('#loginErr').textContent = e.message; } }
+    finally { loading = false; }
+  }
+
+  function render() {
+    const today = new Date(); today.setHours(0, 0, 0, 0); const in30 = new Date(+today + 30 * 864e5);
+    const bookings = items.filter(isBooking);
+    const newB = bookings.filter(i => i.status === 'New').length, newM = items.filter(i => i.form === 'contact' && i.status === 'New').length;
+    $('#tNew').textContent = newB + newM;
+    $('#tQuoted').textContent = bookings.filter(i => i.status === 'Quoted').length;
+    const deps = items.filter(i => i.deposit);
+    $('#tDep').textContent = A$(deps.reduce((s, i) => s + (i.deposit.amount || 0), 0));
+    $('#tDepN').textContent = deps.length + ' deposit' + (deps.length === 1 ? '' : 's') + ' paid';
+    $('#tVal').textContent = A$(bookings.filter(i => BOOKED.includes(i.status) && i.status !== 'Lost').reduce((s, i) => s + (i.quote || 0), 0));
+    $('#nBook').hidden = !newB; $('#nBook').textContent = newB; $('#nMsg').hidden = !newM; $('#nMsg').textContent = newM;
+    const upcoming = bookings.filter(i => ['Deposit paid', 'Confirmed'].includes(i.status) && i.data?.event_date).map(i => ({ i, d: new Date(i.data.event_date + 'T00:00:00') })).filter(x => x.d >= today).sort((a, b) => a.d - b.d);
+    $('#tUp').textContent = upcoming.filter(x => x.d <= in30).length;
+    $('#upcoming').innerHTML = upcoming.slice(0, 6).map(({ i, d }) => `<li data-open="${esc(i.id)}"><span class="d">${d.getDate()}<small>${d.toLocaleDateString('en-AU', { month: 'short' })}</small></span><span><b>${esc(i.data.event_name || i.data.event_type || 'Event')}</b><br><small>${esc(i.data.start_time ? fmtTime(i.data.start_time) + ' · ' : '')}${esc(i.data.venue_suburb || '')} ${esc(i.data.state || '')}</small></span></li>`).join('') || '<li style="display:block;color:var(--muted);cursor:default">Booked events show here once a deposit is paid or you confirm them.</li>';
+    renderTodo(today); renderSetup(); renderSync();
+    $('#listView').hidden = tab === 'cal'; $('#calView').hidden = tab !== 'cal';
+    if (tab === 'cal') return renderCal();
+    const inTab = items.filter(i => tab === 'booking' ? isBooking(i) : i.form === tab);
+    const counts = {}; inTab.forEach(i => counts[i.status] = (counts[i.status] || 0) + 1);
+    if (filter !== 'All' && !counts[filter]) filter = 'All';
+    $('#chips').innerHTML = ['All', ...statuses].filter(s => s === 'All' || counts[s]).map(s => `<button class="chip" type="button" data-f="${esc(s)}" aria-pressed="${filter === s}">${esc(s)} ${s === 'All' ? inTab.length : counts[s]}</button>`).join('');
+    const q = $('#q').value.trim().toLowerCase();
+    let rows = inTab.filter(i => (filter === 'All' || i.status === filter) && (!q || JSON.stringify([i.ref, i.data, i.notes]).toLowerCase().includes(q)));
+    if ($('#sort').value === 'event') rows.sort((a, b) => String(a.data?.event_date || '9999').localeCompare(String(b.data?.event_date || '9999')));
+    $('#list').innerHTML = rows.map(card).join('') || `<div class="empty">${items.length ? 'Nothing matches that filter.' : 'No enquiries yet. When someone fills in a form on the website, it shows up here straight away.'}</div>`;
+  }
+
+  function renderTodo(today) {
+    const t = [];
+    items.filter(i => i.status === 'New' && i.form !== 'kiko-updates').forEach(i => t.push([i, `Reply to ${esc(i.data?.name || i.data?.first_name || i.data?.email || 'enquiry')}`, i.form === 'booking' ? 'new booking enquiry' : i.form === 'contact' ? 'new message' : 'new']));
+    items.filter(i => i.status === 'Quoted' && Date.now() - new Date((i.history || []).slice(-1)[0]?.at || i.created) > 4 * 864e5).forEach(i => t.push([i, `Chase ${esc(i.data?.name || i.ref)}`, 'quote sent 4+ days ago, no deposit']));
+    items.filter(i => i.status === 'Deposit paid').forEach(i => t.push([i, `Confirm ${esc(i.ref)}`, 'deposit paid — confirm details, then mark Confirmed']));
+    items.filter(i => i.status === 'Confirmed' && i.data?.event_date && new Date(i.data.event_date + 'T00:00:00') < today).forEach(i => t.push([i, `Wrap up ${esc(i.ref)}`, 'event has passed — mark Completed']));
+    $('#todo').innerHTML = t.slice(0, 8).map(([i, a, b]) => `<li data-open="${esc(i.id)}"><span><b>${a}</b><br><small>${esc(b)}</small></span></li>`).join('') || '<li style="cursor:default;background:none;padding:0;color:var(--muted)">All caught up. 🎉</li>';
+  }
+
+  function renderSetup() {
+    const miss = [];
+    if (!info.emails) miss.push('Automatic emails are off (Brevo not connected) — enquiries still land here.');
+    if (!info.stripe || info.stripe.ok === false) miss.push(info.stripe?.reason === 'Stripe key not added yet' ? 'Stripe isn’t connected yet, so deposits can’t be paid online.' : 'Couldn’t reach Stripe on the last check — deposits will show on the next refresh.');
+    if (!info.defaultDeposit) miss.push('No standard deposit amount set (KIKO_DEPOSIT_AUD). You can still set an amount per booking.');
+    $('#setup').hidden = !miss.length;
+    $('#setup').innerHTML = `<b>Still to switch on</b><ul>${miss.map(m => `<li>${esc(m)}</li>`).join('')}</ul>`;
+  }
+  function renderSync() {
+    const s = info.stripe;
+    $('#sync').textContent = s && s.ok ? `Stripe checked ${s.at ? ago(new Date(s.at)) : ''}` : '';
+    const feed = info.calendar || '';
+    $('#gcal').href = 'https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(feed.replace(/^https:/, 'webcal:'));
+    $('#ical').href = feed.replace(/^https:/, 'webcal:');
+  }
+
+  function moneyPills(i) {
+    const p = [];
+    if (i.quote != null) p.push(`<span class="pill">Quote ${A$(i.quote)}</span>`);
+    const due = i.depositDue ?? info.defaultDeposit;
+    if (i.deposit) p.push(`<span class="pill" data-s="Confirmed">Deposit paid ${A$(i.deposit.amount)}</span>`);
+    else if (due && i.form === 'booking') p.push(`<span class="pill">Deposit ${A$(due)}${i.depositDue == null ? ' (standard)' : ''}</span>`);
+    if (i.quote != null && i.deposit) p.push(`<span class="pill warn">Balance ${A$(Math.max(0, i.quote - i.deposit.amount))}</span>`);
+    return p.length ? `<p class="money">${p.join('')}</p>` : '';
+  }
+
+  function card(i) {
+    const d = i.data || {}, s = i.status;
+    const title = isBooking(i) ? esc(i.ref || 'Booking') : esc(d.name || d.first_name || d.email || 'Message');
+    const line = i.form === 'booking' ? `<strong>${esc(d.event_name || d.event_type || 'Event')}</strong>${d.event_date ? ' · ' + esc(fmtDate(d.event_date)) : ''}${d.start_time ? ' ' + esc(fmtTime(d.start_time)) : ''}${d.venue_suburb ? ' · ' + esc(d.venue_suburb) : ''}${d.state ? ', ' + esc(d.state) : ''}${d.attendance ? ' · ' + esc(d.attendance) + ' people' : ''}`
+      : i.form === 'contact' ? `<strong>${esc(d.reason || 'General')}</strong>${d.organisation ? ' · ' + esc(d.organisation) : ''}${d.message ? ' — ' + esc(String(d.message).slice(0, 120)) + (String(d.message).length > 120 ? '…' : '') : ''}`
+      : i.form === 'deposit' ? '<strong>Deposit paid</strong>' : `<strong>${esc(d.email || '')}</strong>${d.interest ? ' · ' + esc(val(d.interest)) : ''}`;
+    const contact = [isBooking(i) && d.name ? esc(d.name) : '', isBooking(i) && d.organisation ? esc(d.organisation) : '', d.email ? `<a href="mailto:${esc(d.email)}">${esc(d.email)}</a>` : '', d.phone ? `<a href="tel:${esc(tel(d.phone))}">${esc(d.phone)}</a>` : ''].filter(Boolean).join(' · ');
+    return `<article class="item" data-s="${esc(s)}" data-id="${esc(i.id)}">
+      <div class="row"><button class="ref" type="button" data-open="${esc(i.id)}">${title}</button><span class="pill" data-s="${esc(s)}">${esc(s)}</span>${i.source === 'manual' ? '<span class="pill">Added by you</span>' : ''}<span class="when" title="${esc(i.created)}">${esc(ago(i.created))}</span></div>
+      <p class="meta">${line}</p>${contact ? `<p class="who">${contact}</p>` : ''}${moneyPills(i)}
+      <div class="qrow"><select data-act="status" aria-label="Status">${statuses.map(x => `<option${x === s ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>
+        <button class="btn sm" type="button" data-open="${esc(i.id)}">Open</button>${quoteLink(i) ? `<a class="btn ghost sm" href="${quoteLink(i)}" data-quoted="${esc(i.id)}">Email quote</a>` : ''}${d.phone ? `<a class="btn ghost sm" href="tel:${esc(tel(d.phone))}">Call</a>` : ''}${i.notes ? `<span class="pill" title="${esc(i.notes)}">📝 note</span>` : ''}</div>
+    </article>`;
+  }
+
+  const depLink = i => i.ref ? `${site}/deposit.html?ref=${encodeURIComponent(i.ref)}&email=${encodeURIComponent(i.data?.email || '')}` : '';
+  function quoteLink(i) {
+    const d = i.data || {}; if (i.form !== 'booking' || !d.email) return '';
+    const first = String(d.name || '').split(' ')[0], due = i.depositDue ?? info.defaultDeposit;
+    const body = `Hi ${first || 'there'},\n\nThanks so much for inviting Kiko to ${d.event_name || d.event_type || 'your event'}${d.event_date ? ' on ' + fmtDate(d.event_date) : ''}${d.venue_suburb ? ' in ' + d.venue_suburb : ''}. Kiko is excited already!\n\nYOUR QUOTE (${i.ref})\n${i.quote != null ? 'Total: ' + A$(i.quote) + ' (incl. GST)\n' : '[Your price and what’s included]\n'}${due ? 'Deposit to secure the date: ' + A$(due) + '\n' : ''}${i.quote != null && due ? 'Balance: ' + A$(Math.max(0, i.quote - due)) + ', due before the event\n' : ''}\nTo lock in your date, pay the deposit securely here:\n${depLink(i)}\n\nYour date is held once the deposit is paid. Any questions, just reply to this email.\n\nBig smiles,\nKiko — The KASA Dragon`;
+    return `mailto:${encodeURIComponent(d.email)}?subject=${encodeURIComponent(`Your Kiko booking quote (${i.ref})`)}&body=${encodeURIComponent(body)}`;
+  }
+  function gcalEvent(i) {
+    const d = i.data || {}; if (!d.event_date) return '';
+    const day = d.event_date.replace(/-/g, ''), t = x => x.replace(':', '') + '00';
+    let dates;
+    if (/^\d{2}:\d{2}$/.test(d.start_time || '')) dates = `${day}T${t(d.start_time)}/${day}T${t(/^\d{2}:\d{2}$/.test(d.finish_time || '') && d.finish_time > d.start_time ? d.finish_time : String(Math.min(23, +d.start_time.slice(0, 2) + 2)).padStart(2, '0') + d.start_time.slice(2))}`;
+    else { const n = new Date(d.event_date + 'T00:00:00'); n.setDate(n.getDate() + 1); dates = `${day}/${iso(n).replace(/-/g, '')}`; }
+    const tz = { WA: 'Australia/Perth', SA: 'Australia/Adelaide', NT: 'Australia/Darwin', QLD: 'Australia/Brisbane', VIC: 'Australia/Melbourne', TAS: 'Australia/Hobart' }[d.state] || 'Australia/Sydney';
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(`Kiko: ${d.event_name || d.event_type || 'Event'} (${i.ref})`) + '&dates=' + dates + '&ctz=' + tz + '&location=' + encodeURIComponent([d.venue_suburb, d.state].filter(Boolean).join(', ')) + '&details=' + encodeURIComponent(`${d.name || ''} ${d.phone || ''} ${d.email || ''}\n${site}/admin`);
+  }
+
+  /* calendar */
+  function renderCal() {
+    const y = calMonth.getFullYear(), m = calMonth.getMonth();
+    $('#calTitle').textContent = calMonth.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' });
+    const start = new Date(y, m, 1); const off = (start.getDay() + 6) % 7; start.setDate(1 - off);
+    const byDay = {};
+    items.filter(i => i.form === 'booking' && i.status !== 'Lost' && i.data?.event_date).forEach(i => (byDay[i.data.event_date] = byDay[i.data.event_date] || []).push(i));
+    Object.values(byDay).forEach(l => l.sort((a, b) => (BOOKED.includes(b.status) - BOOKED.includes(a.status)) || String(a.data.start_time || '').localeCompare(String(b.data.start_time || ''))));
+    const todayIso = iso(new Date());
+    let h = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => `<div class="dow">${d}</div>`).join('');
+    for (let k = 0; k < 42; k++) {
+      const d = new Date(start); d.setDate(start.getDate() + k); const key = iso(d), list = byDay[key] || [];
+      if (k === 35 && d.getMonth() !== m) break;
+      const booked = list.filter(i => BOOKED.includes(i.status)).length;
+      h += `<div class="cal-day${d.getMonth() !== m ? ' out' : ''}${key === todayIso ? ' today' : ''}${list.length > 1 ? ' clash' : ''}" role="button" tabindex="0" data-day="${key}" aria-label="${esc(fmtDate(key))}: ${list.length} booking${list.length === 1 ? '' : 's'}${booked ? ', ' + booked + ' booked' : ''}"><span class="dn">${d.getDate()}</span>${list.slice(0, 4).map(i => `<button class="ev" type="button" data-s="${esc(i.status)}" data-open="${esc(i.id)}" title="${esc(i.status)} · ${esc(i.data.event_name || i.data.event_type || '')}">${i.data.start_time ? esc(fmtTime(i.data.start_time)) + ' ' : ''}${esc(i.data.event_name || i.data.event_type || i.ref)}</button>`).join('')}${list.length > 4 ? `<span class="dn">+${list.length - 4} more</span>` : ''}</div>`;
+    }
+    $('#cal').innerHTML = h;
+  }
+
+  /* drawer: view + edit one booking, or add a new one */
+  const F = (k, label, type = 'text', v = '', extra = '') => `<label class="f${type === 'area' ? ' full' : ''}">${label}${type === 'area' ? `<textarea name="${k}"${extra}>${esc(v)}</textarea>` : type === 'select' ? `<select name="${k}">${extra}</select>` : `<input name="${k}" type="${type}" value="${esc(v)}"${extra}>`}</label>`;
+  const opts = (list, cur) => list.map(x => `<option${x === cur ? ' selected' : ''}>${esc(x)}</option>`).join('');
+  const STATES = ['', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'];
+
+  function openItem(id) {
+    const i = items.find(x => x.id === id); if (!i) return;
+    openId = id; const d = i.data || {}, booking = i.form === 'booking';
+    $('#dwTitle').textContent = isBooking(i) ? (i.ref || 'Booking') : (d.name || d.first_name || d.email || 'Message');
+    $('#dwPill').textContent = i.status; $('#dwPill').dataset.s = i.status;
+    const all = Object.keys(d).filter(k => !HIDE.has(k) && d[k] !== '' && d[k] != null).sort((a, b) => (Object.keys(LBL).indexOf(a) + 1 || 99) - (Object.keys(LBL).indexOf(b) + 1 || 99))
+      .map(k => `<dt>${esc(nice(k))}</dt><dd>${k === 'email' ? `<a href="mailto:${esc(d[k])}">${esc(d[k])}</a>` : k === 'phone' ? `<a href="tel:${esc(tel(d[k]))}">${esc(d[k])}</a>` : k === 'event_date' ? esc(fmtDate(d[k])) : /time$/.test(k) ? esc(fmtTime(d[k])) : esc(val(d[k]))}</dd>`).join('');
+    const due = i.depositDue ?? info.defaultDeposit;
+    const ql = quoteLink(i), gl = booking ? gcalEvent(i) : '', dl = booking ? depLink(i) : '';
+    $('#dwBody').innerHTML = `
+      <div class="acts">${ql ? `<a class="btn sm" href="${ql}" data-quoted="${esc(i.id)}">Email quote</a>` : d.email ? `<a class="btn sm" href="mailto:${esc(d.email)}">Email</a>` : ''}${d.phone ? `<a class="btn ghost sm" href="tel:${esc(tel(d.phone))}">Call</a><a class="btn ghost sm" href="sms:${esc(tel(d.phone))}">Text</a>` : ''}${dl ? `<button class="btn ghost sm" type="button" data-copy="${esc(dl)}">Copy deposit link</button>` : ''}${gl ? `<a class="btn ghost sm" href="${gl}" target="_blank" rel="noopener">Add to Google Calendar</a>` : ''}</div>
+      <form class="dw-sec" id="dwForm">
+        <h3>Status &amp; money</h3>
+        <div class="grid2">
+          ${F('status', 'Status', 'select', '', opts(statuses, i.status))}
+          <span></span>
+          ${booking ? F('quote', 'Quote total (A$)', 'number', i.quote ?? '', ' min="0" step="0.01" inputmode="decimal" placeholder="e.g. 450"') + F('depositDue', 'Deposit for this booking (A$)', 'number', i.depositDue ?? '', ` min="0" step="0.01" inputmode="decimal" placeholder="${info.defaultDeposit ? 'standard ' + info.defaultDeposit : 'e.g. 150'}"`) : ''}
+          ${F('notes', 'Private notes', 'area', i.notes || '', ' placeholder="Only you can see these"')}
+        </div>
+        ${booking ? `<div class="sum" style="margin-top:10px"><div><b>${i.quote != null ? A$(i.quote) : '—'}</b><span>Quote</span></div><div><b>${i.deposit ? A$(i.deposit.amount) : '—'}</b><span>${i.deposit ? 'Deposit paid ' + esc(fmtDate(i.deposit.paidAt)) : 'Deposit ' + (due ? A$(due) + ' not paid yet' : 'not set')}</span></div><div><b>${i.quote != null ? A$(Math.max(0, i.quote - (i.deposit?.amount || 0))) : '—'}</b><span>Still to pay</span></div></div>` : ''}
+        ${booking ? `<h3 style="margin-top:16px">Event details <small style="font-weight:600;color:var(--muted)">(edit if they change)</small></h3>
+        <div class="grid2">
+          ${F('event_date', 'Event date', 'date', d.event_date || '')}${F('state', 'State', 'select', '', opts(STATES, d.state || ''))}
+          ${F('start_time', 'Start', 'time', d.start_time || '')}${F('finish_time', 'Finish', 'time', d.finish_time || '')}
+          ${F('event_name', 'Event name', 'text', d.event_name || '')}${F('venue_suburb', 'Venue / suburb', 'text', d.venue_suburb || '')}
+          ${F('name', 'Contact name', 'text', d.name || '')}${F('phone', 'Phone', 'tel', d.phone || '')}
+          ${F('email', 'Email', 'email', d.email || '')}${F('organisation', 'Organisation', 'text', d.organisation || '')}
+        </div>` : ''}
+        <div class="acts" style="margin-top:12px"><button class="btn" type="submit">Save changes</button><span id="dwSaved" style="align-self:center;color:var(--muted);font-size:.85rem"></span></div>
+      </form>
+      ${all ? `<section class="dw-sec"><h3>Everything they sent</h3><dl>${all}</dl></section>` : ''}
+      ${i.payments?.length ? `<section class="dw-sec"><h3>Payments</h3><ul class="hist">${i.payments.map(p => `<li>${A$(p.amount)} · ${esc(fmtDate(p.paidAt))} · ${esc(p.email || '')}</li>`).join('')}</ul></section>` : ''}
+      <section class="dw-sec"><h3>History</h3><ul class="hist"><li>${esc(fmtDate(i.created))} — ${i.source === 'manual' ? 'added by you' : 'came in from the website'}</li>${(i.history || []).map(h => `<li>${esc(fmtDate(h.at))} — ${esc(h.status)}</li>`).join('')}</ul></section>
+      <div class="acts"><button class="btn danger sm" type="button" data-del="${esc(i.id)}">Delete</button><span style="align-self:center;color:var(--muted);font-size:.82rem">Tip: use “Lost” instead if you just want it out of the way.</span></div>`;
+    if (!$('#drawer').open) $('#drawer').showModal();
+  }
+
+  function openNew(date = '') {
+    openId = null;
+    $('#dwTitle').textContent = 'New booking'; $('#dwPill').textContent = ''; delete $('#dwPill').dataset.s;
+    $('#dwBody').innerHTML = `<p style="margin:0;color:var(--muted)">For bookings that come by phone, email or in person. It gets a reference and deposit link like a website booking.</p>
+      <form class="dw-sec" id="newForm"><div class="grid2">
+        ${F('name', 'Contact name', 'text', '', ' required')}${F('organisation', 'Organisation', 'text')}
+        ${F('phone', 'Phone', 'tel')}${F('email', 'Email', 'email')}
+        ${F('event_type', 'Event type', 'select', '', opts(['School event', 'Community festival', 'Sporting event', 'Shopping centre', 'Corporate family day', 'Charity / fundraiser', 'Birthday / private', 'Other'], ''))}${F('event_name', 'Event name', 'text')}
+        ${F('event_date', 'Event date', 'date', date)}${F('state', 'State', 'select', '', opts(STATES, ''))}
+        ${F('start_time', 'Start', 'time')}${F('finish_time', 'Finish', 'time')}
+        ${F('venue_suburb', 'Venue / suburb', 'text')}${F('status', 'Status', 'select', '', opts(statuses, 'Contacted'))}
+        ${F('quote', 'Quote total (A$)', 'number', '', ' min="0" step="0.01" inputmode="decimal"')}${F('depositDue', 'Deposit (A$)', 'number', '', ` min="0" step="0.01" inputmode="decimal" placeholder="${info.defaultDeposit ? 'standard ' + info.defaultDeposit : ''}"`)}
+        ${F('notes', 'Private notes', 'area')}
+      </div><div class="acts" style="margin-top:12px"><button class="btn" type="submit">Add booking</button></div></form>`;
+    if (!$('#drawer').open) $('#drawer').showModal();
+    setTimeout(() => $('#newForm [name=name]').focus(), 60);
+  }
+
+  function openDay(key) {
+    const list = items.filter(i => i.form === 'booking' && i.status !== 'Lost' && i.data?.event_date === key);
+    if (!list.length) return openNew(key);
+    openId = null; $('#dwTitle').textContent = fmtDate(key); $('#dwPill').textContent = list.length + ' booking' + (list.length > 1 ? 's' : ''); delete $('#dwPill').dataset.s;
+    $('#dwBody').innerHTML = `<div class="list">${list.map(card).join('')}</div><div class="acts"><button class="btn sun" type="button" data-add-day="${key}"><svg class="i"><use href="#plus"/></svg>Add another booking this day</button></div>`;
+    if (!$('#drawer').open) $('#drawer').showModal();
+  }
+
+  const DATA_KEYS = ['event_date', 'state', 'start_time', 'finish_time', 'event_name', 'venue_suburb', 'name', 'phone', 'email', 'organisation', 'event_type'];
+  async function save(id, patch, quiet) {
+    try {
+      const d = await call({ action: 'update', id, ...patch });
+      const k = items.findIndex(i => i.id === id); if (k > -1) items[k] = d.item;
+      render(); if (!quiet) toast('Saved ✓'); return d.item;
+    } catch (e) { toast(e.message); }
+  }
+
+  document.addEventListener('submit', async e => {
+    if (e.target.id === 'dwForm') {
+      e.preventDefault(); const f = new FormData(e.target), patch = { status: f.get('status'), notes: f.get('notes') || '' };
+      if (f.has('quote')) { patch.quote = f.get('quote'); patch.depositDue = f.get('depositDue'); patch.data = {}; DATA_KEYS.forEach(k => f.has(k) && (patch.data[k] = f.get(k))); }
+      const btn = e.target.querySelector('[type=submit]'); btn.disabled = true;
+      const it = await save(openId, patch); btn.disabled = false; if (it) openItem(openId);
+    }
+    if (e.target.id === 'newForm') {
+      e.preventDefault(); const f = new FormData(e.target), data = {}; DATA_KEYS.forEach(k => data[k] = f.get(k) || '');
+      const btn = e.target.querySelector('[type=submit]'); btn.disabled = true;
+      try { const d = await call({ action: 'create', data, status: f.get('status'), notes: f.get('notes'), quote: f.get('quote'), depositDue: f.get('depositDue') });
+        items.unshift(d.item); render(); openItem(d.item.id); toast(`Added ${d.item.ref}`);
+      } catch (err) { toast(err.message); btn.disabled = false; }
+    }
+  });
+  document.addEventListener('change', e => {
+    const a = e.target.closest('.item [data-act="status"]'); if (!a) return;
+    save(a.closest('[data-id]').dataset.id, { status: a.value });
+  });
+  document.addEventListener('click', async e => {
+    const o = e.target.closest('[data-open]'); if (o) { e.stopPropagation(); return openItem(o.dataset.open); }
+    const day = e.target.closest('[data-day]'); if (day) return openDay(day.dataset.day);
+    const add = e.target.closest('[data-add-day]'); if (add) return openNew(add.dataset.addDay);
+    if (e.target.closest('[data-new]')) return openNew();
+    if (e.target.closest('[data-close]')) return $('#drawer').close();
+    const c = e.target.closest('[data-copy]'); if (c) { try { await navigator.clipboard.writeText(c.dataset.copy); toast('Deposit link copied'); } catch { prompt('Copy this link', c.dataset.copy); } return; }
+    const q = e.target.closest('[data-quoted]'); if (q) { const it = items.find(i => i.id === q.dataset.quoted); if (it && ['New', 'Contacted'].includes(it.status)) setTimeout(() => save(it.id, { status: 'Quoted' }, true).then(() => toast('Marked as Quoted')), 400); return; }
+    const del = e.target.closest('[data-del]'); if (del) {
+      if (!del.dataset.sure) { del.dataset.sure = 1; del.textContent = 'Tap again to delete for good'; setTimeout(() => { if (del.isConnected) { delete del.dataset.sure; del.textContent = 'Delete'; } }, 4000); return; }
+      try { await call({ action: 'delete', id: del.dataset.del }); items = items.filter(i => i.id !== del.dataset.del); $('#drawer').close(); render(); toast('Deleted'); } catch (err) { toast(err.message); }
+      return;
+    }
+    const ch = e.target.closest('[data-f]'); if (ch) { filter = ch.dataset.f; return render(); }
+    const t = e.target.closest('[data-tab]'); if (t) return setTab(t.dataset.tab);
+    const j = e.target.closest('[data-jump]'); if (j) { if (j.dataset.jump === 'cal') return setTab('cal'); setTab('booking'); filter = j.dataset.jump; return render(); }
+  });
+  document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-day]')) { e.preventDefault(); openDay(e.target.dataset.day); } });
+  function setTab(t) { tab = t; filter = 'All'; $$('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t))); render(); }
+  $('#drawer').addEventListener('click', e => { if (e.target === $('#drawer')) $('#drawer').close(); });
+  $('#drawer').addEventListener('close', () => { openId = null; });
+  $('#calPrev').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth() - 1); renderCal(); });
+  $('#calNext').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth() + 1); renderCal(); });
+  $('#calToday').addEventListener('click', () => { calMonth = new Date(); calMonth.setDate(1); renderCal(); });
+  $('#copyFeed').addEventListener('click', async () => { try { await navigator.clipboard.writeText(info.calendar); toast('Calendar link copied'); } catch { prompt('Copy this link', info.calendar); } });
+  $('#q').addEventListener('input', render); $('#sort').addEventListener('change', render);
+  $('#refresh').addEventListener('click', () => load().then(() => toast('Up to date')));
+  $('#logout').addEventListener('click', async () => { await call({ action: 'logout' }).catch(() => {}); items = []; show(false); });
+  $('#csv').addEventListener('click', () => {
+    const rows = items.filter(i => tab === 'booking' || tab === 'cal' ? isBooking(i) : i.form === tab);
+    const keys = new Set(); rows.forEach(i => Object.keys(i.data || {}).forEach(k => !HIDE.has(k) && keys.add(k)));
+    const cols = ['ref', 'status', 'created', 'quote', 'deposit_due', 'deposit_paid', 'notes', ...keys];
+    const v = (i, k) => k === 'deposit_due' ? (i.depositDue ?? '') : k === 'deposit_paid' ? (i.deposit ? i.deposit.amount : '') : ['ref', 'status', 'created', 'quote', 'notes'].includes(k) ? (i[k] ?? '') : val(i.data?.[k] ?? '');
+    const csv = '﻿' + [cols.map(nice).join(','), ...rows.map(i => cols.map(k => `"${String(v(i, k)).replace(/"/g, '""')}"`).join(','))].join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = `kiko-${tab === 'cal' ? 'booking' : tab}-${iso(new Date())}.csv`; a.click();
+  });
+  $('#loginForm').addEventListener('submit', async e => {
+    e.preventDefault(); $('#loginErr').textContent = '';
+    try { await call({ action: 'login', password: $('#pw').value }); $('#pw').value = ''; await load(); }
+    catch (err) { $('#loginErr').textContent = err.message; show(false); }
+  });
+  load();
+  setInterval(() => { if (!$('#app').hidden && document.visibilityState === 'visible') load(); }, 60000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !$('#app').hidden) load(); });
+})();
+</script>
+</body>
+</html>
