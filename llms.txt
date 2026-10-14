@@ -7,6 +7,8 @@ Key facts
 - Where: across Australia (New Zealand planned later).
 - Who books Kiko: schools, festival and council organisers, sporting clubs, shopping centres, businesses running family days, charities and fundraisers.
 - Price: quoted per event based on location, date, duration and activities. Submitting an enquiry does not confirm a booking; dates are secured with a deposit.
+- Booking: after an enquiry Kiko's team replies with a written quote showing the price, what's included and the deposit. Quotes are valid for 14 days. The date is secured once the deposit is paid (online through Stripe); the balance is due no later than 7 days before the event unless the quote says otherwise.
+- Changes: more than 14 days before the event, a booking can be moved to another date within 12 months at no cost, or cancelled with the deposit refunded less a $50 administration fee. 14 days or less before, the deposit is non-refundable, but Kiko's team will try to move the booking to another date within 6 months.
 - Values: kindness, community, fun and brighter futures. Community work runs under "Kiko Gives Back".
 
 Pages
@@ -15,3 +17,11 @@ Pages
 - [Kiko's Adventures](https://kikothekasadragon.com/adventures.html): schools, community events, sport, special places, kindness missions
 - [Kiko Gives Back](https://kikothekasadragon.com/gives-back.html): charity, school and community partnerships
 - [Contact](https://kikothekasadragon.com/contact.html): partnerships, sponsorship, media, licensing
+- [Pay a booking deposit](https://kikothekasadragon.com/deposit.html): for a booking that has been quoted
+- [Gallery](https://kikothekasadragon.com/gallery.html)
+- [Shop](https://kikothekasadragon.com/shop.html)
+- [Booking terms](https://kikothekasadragon.com/terms.html)
+- [Privacy](https://kikothekasadragon.com/privacy.html)
+
+Contact
+- Email: info@kasaessentials.com
