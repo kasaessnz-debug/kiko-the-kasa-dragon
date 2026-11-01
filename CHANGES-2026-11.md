@@ -33,3 +33,11 @@ Each also replaced in `og:title` and the WebPage schema name.
 - **New page `school-events.html`**: built from the `about.html` template. Every fact comes from `book.html`, `adventures.html` or `terms.html`, except the words "fete", "sports day" and "kindness week", which are the owner's.
 - **Header breakpoint.** `assets/css/kiko.css`: the hamburger menu now takes over at `max-width:1260px` instead of `1120px`, because the extra menu item pushed the "Book Kiko" button off screen below about 1240px wide. The stylesheet link on every page changed from `kiko.css?v=202610120204` to `kiko.css?v=202611020100`, because assets are cached as immutable. `admin.html` does not use this link.
 - **New file `CHANGES-2026-11.md`**: this log.
+
+### Phone number (owner, 2026-11-02)
++61 449 966 222, the same number as Kasa, because Kiko is part of KASA Essentials.
+- Every page except `admin.html`: `"telephone": "+61449966222"` added to the `#kiko` Organization schema, and a `tel:` link added as the last item in the footer's "Work with Kiko" list.
+- `contact.html`: "Phone:" line added after the email line.
+- `book.html`: "Prefer to talk? Call ..." added to the note under the enquiry form.
+- `llms.txt`: "Phone:" added under Contact.
+- `assets/js/config.js`: `phone` deliberately left blank. If it is set, `kiko.js` adds a second, script-written "Call or text" line on the contact page.
