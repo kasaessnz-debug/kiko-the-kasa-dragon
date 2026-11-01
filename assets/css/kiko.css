@@ -96,7 +96,7 @@ h3{font-size:clamp(1.3rem,2vw,1.6rem);line-height:1.15}
 .mobile-menu a{font:800 2rem/1.15 var(--display);font-variation-settings:"INFM" 80;color:var(--forest);text-decoration:none;padding:8px 0;border-bottom:2px dashed var(--line)}
 .mobile-menu .btn{margin-top:22px;align-self:flex-start;font-size:1.15rem}
 .mobile-menu .close{position:absolute;top:22px;right:var(--gutter)}
-@media (max-width:1120px){.nav-links{display:none}.menu-btn{display:inline-flex}.nav{justify-content:space-between}}
+@media (max-width:1260px){.nav-links{display:none}.menu-btn{display:inline-flex}.nav{justify-content:space-between}}
 @media (max-width:420px){.logo small{display:none}.nav .btn span{display:none}.nav .btn{padding:0 14px}}
 
 /* sticky booking bar on phones */

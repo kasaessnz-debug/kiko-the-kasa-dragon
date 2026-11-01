@@ -18,10 +18,10 @@ window.KIKO = {
 
   // Full links to Kiko's social pages
   socials: {
-    instagram: "",
-    facebook: "",
+    instagram: "https://www.instagram.com/kikothekasadragon/",
+    facebook: "https://www.facebook.com/profile.php?id=61593852687662",
     tiktok: "",
-    youtube: "",
+    youtube: "https://www.youtube.com/@KikoTheKasaDragon",
     linkedin: ""
   }
 };
