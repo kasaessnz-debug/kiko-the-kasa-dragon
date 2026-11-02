@@ -185,7 +185,7 @@ EVENT_TYPES = [
 def types_grid():
     from urllib.parse import quote
     items = ''.join(
-        f'<li><a href="/book.html?type={quote(t)}#enquire" data-track="type_{i}"><span class="dot {c}">{{{{i:{ic}}}}}</span>{t.replace("&", "&amp;")}<small>{d}</small></a></li>'
+        f'<li><a href="/book?type={quote(t)}#enquire" data-track="type_{i}"><span class="dot {c}">{{{{i:{ic}}}}}</span>{t.replace("&", "&amp;")}<small>{d}</small></a></li>'
         for i, (t, ic, c, d) in enumerate(EVENT_TYPES))
     return f'<ul class="types">{items}</ul>'
 
@@ -200,8 +200,8 @@ HOME = '''
         <h1 id="h-hero">Big Adventures.<br>Brighter Tomorrows.</h1>
         <p class="lede">Meet Kiko — The KASA Dragon, spreading kindness, joy and brighter futures for children, families and communities across Australia.</p>
         <div class="btn-row">
-          <a class="btn" href="/about.html">Meet Kiko</a>
-          <a class="btn btn-white" href="/book.html#enquire" data-track="hero_book">{{i:calendar-heart}} Book Kiko</a>
+          <a class="btn" href="/about">Meet Kiko</a>
+          <a class="btn btn-white" href="/book#enquire" data-track="hero_book">{{i:calendar-heart}} Book Kiko</a>
         </div>
         ''' + values_list() + '''
       </div>
@@ -221,7 +221,7 @@ HOME = '''
       <p class="note">Hi, I’m Kiko!</p>
       <h2 id="h-meet">A curious, caring and courageous dragon.</h2>
       <p class="lede">A big personality and an even bigger heart. Kiko loves meeting new people, discovering new places and creating moments that bring families and communities together.</p>
-      <a class="btn" href="/about.html">Learn more about Kiko</a>
+      <a class="btn" href="/about">Learn more about Kiko</a>
       <div class="meet-extra">
         <figure class="polaroid"><span class="tape"></span>''' + pic('coast', '260px', alt='Kiko looking out over the Australian coast') + '''<figcaption>Coast adventures! – Kiko</figcaption></figure>
       </div>
@@ -239,7 +239,7 @@ HOME = '''
     <div class="real-row" data-real-row>
       ''' + video('hello') + snap('r-point', 'Hi friend!', '-3') + video('my-name') + snap('r-portrait', 'Is that a camera?', '3') + '''
     </div>
-    <div class="btn-row"><a class="btn" href="/book.html#enquire" data-track="real_book">{{i:calendar-heart}} Book the real Kiko</a><a class="btn btn-white" href="/gallery.html">More photos &amp; videos</a></div>
+    <div class="btn-row"><a class="btn" href="/book#enquire" data-track="real_book">{{i:calendar-heart}} Book the real Kiko</a><a class="btn btn-white" href="/gallery">More photos &amp; videos</a></div>
   </div>
 </section>
 
@@ -250,13 +250,13 @@ HOME = '''
       <p class="note orange">New places. New friends. Bigger adventures.</p>
       <h2 id="h-adv">Exploring. Learning. Smiling.</h2>
       <p class="lede">From schools and sporting events to festivals, community celebrations and special places, Kiko loves exploring Australia and making new friends along the way.</p>
-      <a class="btn" href="/adventures.html">See the adventures</a>
+      <a class="btn" href="/adventures">See the adventures</a>
       <nav class="signpost" aria-label="Where Kiko goes" data-signs>
-        <a class="sign" href="/adventures.html#schools">{{i:graduation-cap}} Schools</a>
-        <a class="sign" href="/adventures.html#community-events">{{i:tent}} Community events</a>
-        <a class="sign" href="/adventures.html#sport">{{i:trophy}} Sport</a>
-        <a class="sign" href="/adventures.html#special-places">{{i:map-pin}} Special places</a>
-        <a class="sign" href="/adventures.html#kindness-missions">{{i:heart}} Kindness missions</a>
+        <a class="sign" href="/adventures#schools">{{i:graduation-cap}} Schools</a>
+        <a class="sign" href="/adventures#community-events">{{i:tent}} Community events</a>
+        <a class="sign" href="/adventures#sport">{{i:trophy}} Sport</a>
+        <a class="sign" href="/adventures#special-places">{{i:map-pin}} Special places</a>
+        <a class="sign" href="/adventures#kindness-missions">{{i:heart}} Kindness missions</a>
       </nav>
     </div>
     <div class="adv-card" data-parallax-img>''' + pic('coast', '(max-width:900px) 92vw, 680px') + '''<span class="tag">Postcard from the coast</span></div>
@@ -270,7 +270,7 @@ HOME = '''
       <p class="note pink">Kindness is at the heart of Kiko.</p>
       <h2 id="h-give">Little moments. Big smiles.</h2>
       <p class="lede">Through community appearances, partnerships and special initiatives, Kiko aims to support children, families and organisations doing meaningful work across Australia.</p>
-      <a class="btn btn-pink" href="/gives-back.html">Discover Kiko Gives Back</a>
+      <a class="btn btn-pink" href="/gives-back">Discover Kiko Gives Back</a>
     </div>
     <div class="peek-wrap list-peek" data-peekwrap>''' + peek_html() + '''<ul class="areas" aria-label="Areas Kiko can support">
       <li><span class="dot c-pink">{{i:heart}}</span>Children &amp; Families</li>
@@ -290,7 +290,7 @@ HOME = '''
       <p class="lede">Pick your kind of event to start an enquiry — we’ll come back to you with availability and a quote.</p>
     </div>
     ''' + types_grid() + '''
-    <div class="btn-row"><a class="btn" href="/book.html#enquire" data-track="home_book">{{i:calendar-heart}} Enquire about Kiko</a></div>
+    <div class="btn-row"><a class="btn" href="/book#enquire" data-track="home_book">{{i:calendar-heart}} Enquire about Kiko</a></div>
   </div>
 </section>
 
@@ -299,7 +299,7 @@ HOME = '''
   <div class="wrap dusk-copy">
     <blockquote>“Kind little moments can make a big difference.” — Kiko</blockquote>
     <h2 id="h-close">Let’s make tomorrow brighter together.</h2>
-    <div class="btn-row" style="justify-content:center"><a class="btn btn-sun" href="/book.html#enquire">Book Kiko</a><a class="btn btn-white" href="/gives-back.html#get-involved">Get involved</a></div>
+    <div class="btn-row" style="justify-content:center"><a class="btn btn-sun" href="/book#enquire">Book Kiko</a><a class="btn btn-white" href="/gives-back#get-involved">Get involved</a></div>
   </div>
   <div class="dusk-kiko"><div class="dusk-art" data-rise>''' + live('open', '(max-width:700px) 92vw, 640px', alt='Kiko rising over the horizon at sunset') + '''</div></div>
 </section>
@@ -307,7 +307,7 @@ HOME = '''
 
 # ------------------------------------------------------------------ ABOUT
 ABOUT = inner_hero('About Kiko', 'A kinder, brighter Australia — one smile at a time.', 'About Kiko', 'open',
-                   buttons='<div class="btn-row"><a class="btn" href="#story">Read Kiko’s story</a><a class="btn btn-white" href="/book.html#enquire">Book Kiko</a></div>') + '''
+                   buttons='<div class="btn-row"><a class="btn" href="#story">Read Kiko’s story</a><a class="btn btn-white" href="/book#enquire">Book Kiko</a></div>') + '''
 <section class="section">
   <div class="wrap split wide-left">
     <div>
@@ -367,7 +367,7 @@ ABOUT = inner_hero('About Kiko', 'A kinder, brighter Australia — one smile at 
 <section class="section">
   <div class="wrap">
     <div class="cta-panel">
-      <div><h2>Same little dragon. Bigger possibilities.</h2><p class="lede" style="color:#e6f6ea">Follow Kiko as he explores schools, festivals, sport and special places across Australia.</p><div class="btn-row"><a class="btn btn-sun" href="/adventures.html">Explore Kiko’s Adventures</a></div></div>
+      <div><h2>Same little dragon. Bigger possibilities.</h2><p class="lede" style="color:#e6f6ea">Follow Kiko as he explores schools, festivals, sport and special places across Australia.</p><div class="btn-row"><a class="btn btn-sun" href="/adventures">Explore Kiko’s Adventures</a></div></div>
       <div class="kiko-side">''' + live('wave-r', '340px', alt='') + '''</div>
     </div>
   </div>
@@ -380,7 +380,7 @@ def where(id_, icon, color, title, text, extra=''):
 
 
 ADVENTURES = inner_hero('Kiko’s Adventures', 'Exploring. Learning. Smiling. Making a brighter Australia together.', 'Adventures', 'wave-r',
-                        buttons='<div class="btn-row"><a class="btn" href="/book.html#enquire">Invite Kiko</a></div>') + '''
+                        buttons='<div class="btn-row"><a class="btn" href="/book#enquire">Invite Kiko</a></div>') + '''
 <section class="section">
   <div class="wrap split wide-left">
     <div>
@@ -399,11 +399,11 @@ ADVENTURES = inner_hero('Kiko’s Adventures', 'Exploring. Learning. Smiling. Ma
   <div class="wrap">
     <h2 id="h-where">Where Kiko goes</h2>
     <div class="cards">
-      ''' + where('schools', 'graduation-cap', 'c-sky', 'Schools', 'Kiko loves visiting schools and being part of positive experiences for students — special appearances, reading activities, kindness initiatives, celebrations and community programs.', '<a href="/book.html?type=Schools#enquire">Invite Kiko to your school</a>') + '''
-      ''' + where('community-events', 'tent', 'c-orange', 'Community events', 'Festivals, cultural celebrations, council events and local community days give Kiko a chance to meet families and celebrate the communities that make Australia special.', '<a href="/book.html?type=Community%20festivals#enquire">Invite Kiko to your event</a>') + '''
-      ''' + where('sport', 'trophy', 'c-sun', 'Sports &amp; recreation', 'Kiko loves the excitement of sport. From community sport to major sporting occasions, Kiko helps create a fun and family-friendly atmosphere.', '<a href="/book.html?type=Sporting%20events#enquire">Bring Kiko to game day</a>') + '''
-      ''' + where('special-places', 'map-pin', 'c-leaf', 'Special places', 'Museums, zoos, attractions, landmarks and unique Australian destinations can become part of Kiko’s growing adventure story.', '<a href="/contact.html?reason=Brand%20Collaboration">Suggest a special place</a>') + '''
-      ''' + where('kindness-missions', 'heart', 'c-pink', 'Kindness missions', 'Some adventures have an even bigger purpose. Kiko can support charities, community organisations and initiatives that help children and families.', '<a href="/gives-back.html">See Kiko Gives Back</a>') + '''
+      ''' + where('schools', 'graduation-cap', 'c-sky', 'Schools', 'Kiko loves visiting schools and being part of positive experiences for students — special appearances, reading activities, kindness initiatives, celebrations and community programs.', '<a href="/book?type=Schools#enquire">Invite Kiko to your school</a>') + '''
+      ''' + where('community-events', 'tent', 'c-orange', 'Community events', 'Festivals, cultural celebrations, council events and local community days give Kiko a chance to meet families and celebrate the communities that make Australia special.', '<a href="/book?type=Community%20festivals#enquire">Invite Kiko to your event</a>') + '''
+      ''' + where('sport', 'trophy', 'c-sun', 'Sports &amp; recreation', 'Kiko loves the excitement of sport. From community sport to major sporting occasions, Kiko helps create a fun and family-friendly atmosphere.', '<a href="/book?type=Sporting%20events#enquire">Bring Kiko to game day</a>') + '''
+      ''' + where('special-places', 'map-pin', 'c-leaf', 'Special places', 'Museums, zoos, attractions, landmarks and unique Australian destinations can become part of Kiko’s growing adventure story.', '<a href="/contact?reason=Brand%20Collaboration">Suggest a special place</a>') + '''
+      ''' + where('kindness-missions', 'heart', 'c-pink', 'Kindness missions', 'Some adventures have an even bigger purpose. Kiko can support charities, community organisations and initiatives that help children and families.', '<a href="/gives-back">See Kiko Gives Back</a>') + '''
     </div>
   </div>
 </section>
@@ -416,7 +416,7 @@ ADVENTURES = inner_hero('Kiko’s Adventures', 'Exploring. Learning. Smiling. Ma
       <h2 id="h-latest">Kiko visits Ray White</h2>
       <p class="lede measure">Kiko popped into a Ray White real estate office to say hello to the team. Handshakes, a team photo and plenty of smiles all round.</p>
       <p class="measure">Workplaces love a Kiko visit too: office celebrations, open days, client events and team days. Turn the sound on to join in.</p>
-      <div class="btn-row"><a class="btn" href="/book.html?type=Corporate%20family%20days#enquire" data-track="adv_book">{{i:calendar-heart}} Invite Kiko to your workplace</a></div>
+      <div class="btn-row"><a class="btn" href="/book?type=Corporate%20family%20days#enquire" data-track="adv_book">{{i:calendar-heart}} Invite Kiko to your workplace</a></div>
     </div>
   </div>
 </section>
@@ -434,7 +434,7 @@ ADVENTURES = inner_hero('Kiko’s Adventures', 'Exploring. Learning. Smiling. Ma
         <span class="dot c-leaf" style="width:60px;height:60px;border-radius:18px;display:grid;place-items:center;color:#fff;margin:0 auto 14px">{{i:camera}}</span>
         <h3>Your event could be Kiko’s next adventure.</h3>
         <p>Every real appearance gets its own story here — photos, who Kiko met and what made the day special.</p>
-        <a class="btn" href="/book.html#enquire">Invite Kiko</a>
+        <a class="btn" href="/book#enquire">Invite Kiko</a>
       </div>
     </div>
   </div>
@@ -443,7 +443,7 @@ ADVENTURES = inner_hero('Kiko’s Adventures', 'Exploring. Learning. Smiling. Ma
 <section class="section tight">
   <div class="wrap">
     <div class="cta-panel">
-      <div><h2>Have somewhere Kiko should explore next?</h2><p>Schools, festivals, sporting clubs, attractions — tell us where, and Kiko will pack his backpack.</p><div class="btn-row"><a class="btn btn-sun" href="/book.html#enquire">Invite Kiko</a></div></div>
+      <div><h2>Have somewhere Kiko should explore next?</h2><p>Schools, festivals, sporting clubs, attractions — tell us where, and Kiko will pack his backpack.</p><div class="btn-row"><a class="btn btn-sun" href="/book#enquire">Invite Kiko</a></div></div>
       <div class="kiko-side">''' + live('wave-r', '340px', alt='') + '''</div>
     </div>
   </div>
@@ -473,9 +473,9 @@ GIVES = inner_hero('Kiko Gives Back', 'Stronger communities. Brighter futures.',
     <h2 id="h-areas">Where Kiko can help</h2>
     <div class="cards">
       <div class="card" id="families"><span class="dot c-pink">{{i:heart}}</span><h3>Supporting children &amp; families</h3><p>Where appropriate, Kiko can support organisations and initiatives helping children and families through difficult circumstances — including hospital-related activities, family programs, special events and community initiatives.</p></div>
-      <div class="card" id="schools-education"><span class="dot c-sky">{{i:graduation-cap}}</span><h3>Schools &amp; education</h3><p>Kiko believes children should be encouraged to dream, learn, explore and treat others with kindness — through positive appearances, community programs, reading activities, kindness initiatives and educational experiences.</p><a href="/contact.html?reason=School%20Enquiry">Make a school enquiry</a></div>
+      <div class="card" id="schools-education"><span class="dot c-sky">{{i:graduation-cap}}</span><h3>Schools &amp; education</h3><p>Kiko believes children should be encouraged to dream, learn, explore and treat others with kindness — through positive appearances, community programs, reading activities, kindness initiatives and educational experiences.</p><a href="/contact?reason=School%20Enquiry">Make a school enquiry</a></div>
       <div class="card"><span class="dot c-gum">{{i:users}}</span><h3>Community together</h3><p>Kiko is open to partnerships with local community groups, charities, councils, schools and organisations creating stronger and more connected communities.</p></div>
-      <div class="card" id="community-events"><span class="dot c-orange">{{i:tent}}</span><h3>Community events</h3><p>Local festivals, council events, cultural celebrations, community days, family events, charity events, fundraising activities and sporting community events.</p><a href="/book.html?type=Community%20festivals#enquire">Invite Kiko to your event</a></div>
+      <div class="card" id="community-events"><span class="dot c-orange">{{i:tent}}</span><h3>Community events</h3><p>Local festivals, council events, cultural celebrations, community days, family events, charity events, fundraising activities and sporting community events.</p><a href="/book?type=Community%20festivals#enquire">Invite Kiko to your event</a></div>
       <div class="card"><span class="dot c-sun">{{i:gift}}</span><h3>Giving with purpose</h3><p>As Kiko grows, giving back grows with him. The long-term aim is for community involvement to be a permanent part of the Kiko story — not an occasional activity.</p></div>
     </div>
   </div>
@@ -492,7 +492,7 @@ GIVES = inner_hero('Kiko Gives Back', 'Stronger communities. Brighter futures.',
     <div class="empty" style="align-self:center">
       <h3>Have an initiative idea?</h3>
       <p>Charities, schools and community groups — tell us what you’re working on and how Kiko could help.</p>
-      <a class="btn btn-pink" href="/contact.html?reason=Charity%20%2F%20Kiko%20Gives%20Back">Share your idea</a>
+      <a class="btn btn-pink" href="/contact?reason=Charity%20%2F%20Kiko%20Gives%20Back">Share your idea</a>
     </div>
   </div>
 </section>
@@ -509,7 +509,7 @@ GIVES = inner_hero('Kiko Gives Back', 'Stronger communities. Brighter futures.',
       <span class="dot c-gum" style="width:60px;height:60px;border-radius:18px;display:grid;place-items:center;color:#fff;margin:0 auto 14px">{{i:handshake}}</span>
       <h3>Become one of Kiko’s first partners</h3>
       <p>Charities, councils, schools and businesses doing meaningful work — let’s talk.</p>
-      <a class="btn" href="/contact.html?reason=Community%20Partnership">Partner with Kiko</a>
+      <a class="btn" href="/contact?reason=Community%20Partnership">Partner with Kiko</a>
     </div>
   </div>
 </section>
@@ -542,7 +542,7 @@ GIVES = inner_hero('Kiko Gives Back', 'Stronger communities. Brighter futures.',
       <div>
         <h2>Get involved</h2>
         <p>If you represent a charity, school, community organisation or business with an idea that could help create a positive difference, we would love to hear from you.</p>
-        <div class="btn-row"><a class="btn btn-sun" href="/contact.html?reason=Community%20Partnership">Partner with Kiko</a><a class="btn btn-white" href="/contact.html?reason=Charity%20%2F%20Kiko%20Gives%20Back">Community enquiry</a></div>
+        <div class="btn-row"><a class="btn btn-sun" href="/contact?reason=Community%20Partnership">Partner with Kiko</a><a class="btn btn-white" href="/contact?reason=Charity%20%2F%20Kiko%20Gives%20Back">Community enquiry</a></div>
         <p class="note" style="color:#fff;margin-top:24px">It’s not just about today. It’s about a brighter tomorrow.</p>
       </div>
       <div class="kiko-side">''' + live('wave-r', '340px', alt='') + '''</div>
@@ -617,7 +617,7 @@ BOOK = inner_hero('Bring Kiko to your event', 'Big smiles. Big energy. One unfor
     <h2 id="h-form">Booking enquiry</h2>
     <div class="form-shell" data-peek>
       <ol class="steps" aria-hidden="true"><li class="on"><span>Your event</span></li><li><span>The details</span></li><li><span>Your details</span></li></ol>
-      <form name="booking" method="POST" action="/thank-you.html?f=booking" data-netlify="true" netlify-honeypot="bot-field" data-steps novalidate>
+      <form name="booking" method="POST" action="/thank-you?f=booking" data-netlify="true" netlify-honeypot="bot-field" data-steps novalidate>
         <input type="hidden" name="form-name" value="booking">
         <p class="hp"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
         <input type="hidden" name="utm_source"><input type="hidden" name="utm_medium"><input type="hidden" name="utm_campaign"><input type="hidden" name="referrer"><input type="hidden" name="landing_page">
@@ -669,7 +669,7 @@ BOOK = inner_hero('Bring Kiko to your event', 'Big smiles. Big energy. One unfor
           <button class="btn" type="submit" data-submit hidden style="margin-left:auto">{{i:send}} Send booking enquiry</button>
         </div>
       </form>
-      <p class="form-foot">For partnerships, media or community opportunities, please use our <a href="/contact.html">Contact page</a>. Prefer to talk? Call {{tel}}.</p>
+      <p class="form-foot">For partnerships, media or community opportunities, please use our <a href="/contact">Contact page</a>. Prefer to talk? Call {{tel}}.</p>
     </div>
   </div>
 </section>
@@ -682,7 +682,7 @@ BOOK = inner_hero('Bring Kiko to your event', 'Big smiles. Big energy. One unfor
         <h3 id="h-dep">Got your quote? Secure your date.</h3>
         <p>Pay your booking deposit securely with Stripe. Have your booking reference from your quote email ready.</p>
       </div>
-      <a class="btn btn-sun" href="/deposit.html">Pay deposit</a>
+      <a class="btn btn-sun" href="/deposit">Pay deposit</a>
     </div>
   </div>
 </section>
@@ -697,7 +697,7 @@ BOOK = inner_hero('Bring Kiko to your event', 'Big smiles. Big energy. One unfor
 '''
 
 # ------------------------------------------------------------------ DEPOSIT
-DEPOSIT = inner_hero('Secure your Kiko booking', 'Pay your booking deposit securely through Stripe.', '<a href="/book.html">Events &amp; Bookings</a> / Deposit', 'wave-r') + '''
+DEPOSIT = inner_hero('Secure your Kiko booking', 'Pay your booking deposit securely through Stripe.', '<a href="/book">Events &amp; Bookings</a> / Deposit', 'wave-r') + '''
 <section class="section">
   <div class="wrap" style="max-width:760px">
     <div class="form-shell">
@@ -713,7 +713,7 @@ DEPOSIT = inner_hero('Secure your Kiko booking', 'Pay your booking deposit secur
         <div class="form-nav"><button class="btn btn-sun" type="submit">{{i:ticket}} Continue to secure payment</button></div>
         <p class="form-foot" data-deposit-msg role="status"></p>
       </form>
-      <p class="form-foot">By paying a deposit you agree to our <a href="/terms.html">booking terms</a>. Don’t have a quote yet? <a href="/book.html#enquire">Send a booking enquiry</a> first.</p>
+      <p class="form-foot">By paying a deposit you agree to our <a href="/terms">booking terms</a>. Don’t have a quote yet? <a href="/book#enquire">Send a booking enquiry</a> first.</p>
     </div>
   </div>
 </section>
@@ -738,7 +738,7 @@ GALLERY = inner_hero('Kiko’s Gallery', 'Big adventures deserve big memories.',
       <div class="g-item" data-cat="photos">''' + snap('r-street', 'See you soon!') + '''</div>
     </div>
     <p class="credit">Photos: The Circle Design Studio</p>
-    <div class="empty" data-gallery-empty hidden style="margin-top:16px"><h3>Nothing here yet.</h3><a class="btn" href="/book.html#enquire">Invite Kiko to your event</a></div>
+    <div class="empty" data-gallery-empty hidden style="margin-top:16px"><h3>Nothing here yet.</h3><a class="btn" href="/book#enquire">Invite Kiko to your event</a></div>
   </div>
 </section>
 <section class="band band-mint">
@@ -746,7 +746,7 @@ GALLERY = inner_hero('Kiko’s Gallery', 'Big adventures deserve big memories.',
   <div class="wrap" style="text-align:center">
     <h2>Want photos like these at your event?</h2>
     <p class="lede" style="margin-inline:auto">Kiko loves a camera. Book an appearance and your guests go home with photos they’ll keep.</p>
-    <div class="btn-row" style="justify-content:center;margin-top:20px"><a class="btn" href="/book.html#enquire" data-track="gallery_book">{{i:calendar-heart}} Book Kiko</a></div>
+    <div class="btn-row" style="justify-content:center;margin-top:20px"><a class="btn" href="/book#enquire" data-track="gallery_book">{{i:calendar-heart}} Book Kiko</a></div>
     <div class="socials" data-socials style="justify-content:center;margin-top:20px">{{socials}}</div>
   </div>
 </section>
@@ -764,7 +764,7 @@ SHOP = inner_hero('The Kiko Shop', 'Take a little Kiko adventure home with you.'
     </div>
     <div class="form-shell" data-peek>
       <h3>Be first to hear when Kiko products arrive</h3>
-      <form name="kiko-updates" method="POST" action="/thank-you.html?f=updates" data-netlify="true" netlify-honeypot="bot-field" data-simple novalidate>
+      <form name="kiko-updates" method="POST" action="/thank-you?f=updates" data-netlify="true" netlify-honeypot="bot-field" data-simple novalidate>
         <input type="hidden" name="form-name" value="kiko-updates">
         <p class="hp"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
         <input type="hidden" name="utm_source"><input type="hidden" name="utm_medium"><input type="hidden" name="utm_campaign"><input type="hidden" name="referrer"><input type="hidden" name="landing_page">
@@ -788,14 +788,14 @@ CONTACT = inner_hero('Say hello to Kiko', 'Big adventures often start with a sim
     <div>
       <h2>We’d love to hear from you.</h2>
       <p class="lede">Whether you’d like Kiko at an event, have a partnership idea, represent an organisation or just want to say hi.</p>
-      <ul class="ticks"><li>{{i:calendar-heart}} <span>Booking an event? The <a href="/book.html#enquire">booking enquiry</a> gets you a quote fastest.</span></li><li>{{i:handshake}} <span>Partnerships, sponsorship, media and licensing — use this form.</span></li><li>{{i:mail}} <span data-email-line>Prefer email? Kiko’s inbox is being set up.</span></li><li>{{i:mail}} <span>Phone: {{tel}}</span></li></ul>
+      <ul class="ticks"><li>{{i:calendar-heart}} <span>Booking an event? The <a href="/book#enquire">booking enquiry</a> gets you a quote fastest.</span></li><li>{{i:handshake}} <span>Partnerships, sponsorship, media and licensing — use this form.</span></li><li>{{i:mail}} <span data-email-line>Prefer email? Kiko’s inbox is being set up.</span></li><li>{{i:mail}} <span>Phone: {{tel}}</span></li></ul>
       <div class="card" style="margin-top:28px;background:var(--mint);border-color:transparent">
         <h3>Kiko — The KASA Dragon</h3>
         <p style="margin:0">Created and owned by <b>KASA Essentials Pty Ltd</b><br>Australia</p>
       </div>
     </div>
     <div class="form-shell" data-peek>
-      <form name="contact" method="POST" action="/thank-you.html?f=contact" data-netlify="true" netlify-honeypot="bot-field" data-simple novalidate>
+      <form name="contact" method="POST" action="/thank-you?f=contact" data-netlify="true" netlify-honeypot="bot-field" data-simple novalidate>
         <input type="hidden" name="form-name" value="contact">
         <p class="hp"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
         <input type="hidden" name="utm_source"><input type="hidden" name="utm_medium"><input type="hidden" name="utm_campaign"><input type="hidden" name="referrer"><input type="hidden" name="landing_page">
@@ -821,7 +821,7 @@ THANKS = inner_hero('Thank you!', 'Kiko’s doing a happy dance. Your message is
     <div data-thanks>
       <h2>What happens next</h2>
       <ul class="ticks"><li>{{i:check}} We’ll read your message and reply by email.</li><li>{{i:check}} For bookings, we’ll confirm availability and send a quote with your booking reference.</li><li>{{i:check}} Your date is secured once the booking is confirmed with a deposit.</li></ul>
-      <div class="btn-row"><a class="btn" href="/adventures.html">Explore Kiko’s Adventures</a><a class="btn btn-white" href="/">Back home</a></div>
+      <div class="btn-row"><a class="btn" href="/adventures">Explore Kiko’s Adventures</a><a class="btn btn-white" href="/">Back home</a></div>
     </div>
     <blockquote class="quote-card">“Kind little moments can make a big difference.”<cite>— Kiko</cite></blockquote>
   </div>
@@ -829,7 +829,7 @@ THANKS = inner_hero('Thank you!', 'Kiko’s doing a happy dance. Your message is
 '''
 
 NOTFOUND = inner_hero('Kiko got a little lost', 'This page has wandered off on its own adventure.', 'Not found', 'wave-r',
-                      buttons='<div class="btn-row"><a class="btn" href="/">Take me home</a><a class="btn btn-white" href="/book.html#enquire">Book Kiko</a></div>')
+                      buttons='<div class="btn-row"><a class="btn" href="/">Take me home</a><a class="btn btn-white" href="/book#enquire">Book Kiko</a></div>')
 
 PRIVACY = '''
 <section class="section" style="padding-top:150px">
@@ -846,7 +846,7 @@ PRIVACY = '''
     <h3>Keeping it safe</h3>
     <p>Booking details are kept in a private, password-protected system and are only used by the KASA Essentials team to manage your booking.</p>
     <h3>Your choices</h3>
-    <p>You can ask to access, correct or delete your information, or unsubscribe from updates at any time, by emailing <a href="mailto:info@kasaessentials.com">info@kasaessentials.com</a> or using the <a href="/contact.html">contact page</a>. If you have a privacy concern, contact us first; if you’re not satisfied with our response you can contact the Office of the Australian Information Commissioner (oaic.gov.au).</p>
+    <p>You can ask to access, correct or delete your information, or unsubscribe from updates at any time, by emailing <a href="mailto:info@kasaessentials.com">info@kasaessentials.com</a> or using the <a href="/contact">contact page</a>. If you have a privacy concern, contact us first; if you’re not satisfied with our response you can contact the Office of the Australian Information Commissioner (oaic.gov.au).</p>
     <h3>Children</h3>
     <p>Our forms are intended for parents, guardians, schools and organisations. Please don’t submit children’s personal information through the site.</p>
   </div>
@@ -880,9 +880,9 @@ TERMS = '''
     <h3>8. Photos</h3>
     <p>Guests are welcome to take photos with Kiko. We may take photos of Kiko at your event for our website and social media; we won’t publish photos where children can be identified without permission. Tell us if your event has any photo restrictions.</p>
     <h3>9. Kiko’s character and content</h3>
-    <p>Kiko — The KASA Dragon, his name, likeness, artwork and the content on this site belong to KASA Essentials Pty Ltd. Please don’t copy or use them commercially without written permission. For licensing, use the <a href="/contact.html?reason=Licensing%20%2F%20Commercial%20Opportunity">contact page</a>.</p>
+    <p>Kiko — The KASA Dragon, his name, likeness, artwork and the content on this site belong to KASA Essentials Pty Ltd. Please don’t copy or use them commercially without written permission. For licensing, use the <a href="/contact?reason=Licensing%20%2F%20Commercial%20Opportunity">contact page</a>.</p>
     <h3>10. Contact</h3>
-    <p>Questions about these terms or your booking? Email <a href="mailto:info@kasaessentials.com">info@kasaessentials.com</a> or <a href="/contact.html">get in touch</a>.</p>
+    <p>Questions about these terms or your booking? Email <a href="mailto:info@kasaessentials.com">info@kasaessentials.com</a> or <a href="/contact">get in touch</a>.</p>
   </div>
 </section>
 '''

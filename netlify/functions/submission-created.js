@@ -36,7 +36,7 @@ export const handler = async (event) => {
       .filter((k) => d[k] && String(d[k]).trim())
       .map((k) => `<tr><td style="padding:4px 10px 4px 0;color:#5b7a6a;vertical-align:top">${LABELS[k]}</td><td style="padding:4px 0"><b>${esc(Array.isArray(d[k]) ? d[k].join(", ") : d[k])}</b></td></tr>`)
       .join("");
-    const depositLink = `${site}/deposit.html?ref=${encodeURIComponent(ref)}&email=${encodeURIComponent(d.email || "")}`;
+    const depositLink = `${site}/deposit?ref=${encodeURIComponent(ref)}&email=${encodeURIComponent(d.email || "")}`;
 
     // save to the Kiko dashboard first, so nothing is lost even if email isn't set up yet
     try {

@@ -62,8 +62,13 @@ BRAND = {
 }
 
 
+def clean(f):
+    """The one public address of a page file: no .html (the 404 page stays as it is)."""
+    return '' if f == 'index.html' else f if f == '404.html' else f[:-5]
+
+
 def head(page):
-    url = f"{SITE}/{'' if page['file'] == 'index.html' else page['file']}"
+    url = f"{SITE}/{clean(page['file'])}"
     graph = [ORG, BRAND, {"@type": "WebSite", "@id": f"{SITE}/#site", "url": SITE + "/", "name": "Kiko — The KASA Dragon", "publisher": {"@id": f"{SITE}/#kiko"}, "inLanguage": "en-AU"},
              {"@type": "WebPage", "@id": url + "#page", "url": url, "name": page['title'], "description": page['desc'], "isPartOf": {"@id": f"{SITE}/#site"}, "about": {"@id": f"{SITE}/#kiko"}, "inLanguage": "en-AU"}]
     if page['file'] != 'index.html':
@@ -114,9 +119,9 @@ def head(page):
 
 def header(page):
     links = ''.join(
-        f'<li><a href="/{f if f != "index.html" else ""}"{" aria-current=\"page\"" if f == page["file"] else ""}>{t}</a></li>'
+        f'<li><a href="/{clean(f)}"{" aria-current=\"page\"" if f == page["file"] else ""}>{t}</a></li>'
         for f, t in NAV)
-    mlinks = ''.join(f'<a href="/{f if f != "index.html" else ""}">{t}</a>' for f, t in NAV)
+    mlinks = ''.join(f'<a href="/{clean(f)}">{t}</a>' for f, t in NAV)
     return f'''<header class="site-head" id="top">
   <nav class="nav wrap" aria-label="Main">
     <a class="logo" href="/" aria-label="Kiko — The KASA Dragon, home">
@@ -124,14 +129,14 @@ def header(page):
       <span><b>Kiko</b><small>The KASA Dragon</small></span>
     </a>
     <ul class="nav-links">{links}</ul>
-    <a class="btn btn-sm" href="/book.html#enquire" data-track="nav_book">{icon('calendar-heart')}<span>Book Kiko</span></a>
+    <a class="btn btn-sm" href="/book#enquire" data-track="nav_book">{icon('calendar-heart')}<span>Book Kiko</span></a>
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">{icon('menu')}</button>
   </nav>
 </header>
 <div class="mobile-menu" id="mobile-menu" aria-label="Menu">
   <button class="menu-btn close" type="button" aria-label="Close menu" style="display:inline-flex">{icon('x')}</button>
   {mlinks}
-  <a class="btn" href="/book.html#enquire">{icon('calendar-heart')} Book Kiko</a>
+  <a class="btn" href="/book#enquire">{icon('calendar-heart')} Book Kiko</a>
 </div>
 '''
 
@@ -149,11 +154,11 @@ def footer(page):
       </div>
       <div>
         <h4>Explore</h4>
-        <ul><li><a href="/about.html">About Kiko</a></li><li><a href="/adventures.html">Kiko’s Adventures</a></li><li><a href="/gives-back.html">Kiko Gives Back</a></li><li><a href="/gallery.html">Gallery</a></li></ul>
+        <ul><li><a href="/about">About Kiko</a></li><li><a href="/adventures">Kiko’s Adventures</a></li><li><a href="/gives-back">Kiko Gives Back</a></li><li><a href="/gallery">Gallery</a></li></ul>
       </div>
       <div>
         <h4>Work with Kiko</h4>
-        <ul><li><a href="/book.html">Events &amp; Bookings</a></li><li><a href="/book.html#deposit">Pay a booking deposit</a></li><li><a href="/contact.html?reason=Community%20Partnership">Partner with Kiko</a></li><li><a href="/shop.html">Shop</a></li><li><a href="/contact.html">Contact</a></li><li><a href="tel:{PHONE}">{PHONE_SHOW}</a></li></ul>
+        <ul><li><a href="/book">Events &amp; Bookings</a></li><li><a href="/book#deposit">Pay a booking deposit</a></li><li><a href="/contact?reason=Community%20Partnership">Partner with Kiko</a></li><li><a href="/shop">Shop</a></li><li><a href="/contact">Contact</a></li><li><a href="tel:{PHONE}">{PHONE_SHOW}</a></li></ul>
       </div>
       <div>
         <h4>Follow Kiko’s adventures</h4>
@@ -164,12 +169,12 @@ def footer(page):
     <div class="foot-base">
       <span>© Kiko — The KASA Dragon {YEAR}. All rights reserved.</span>
       <span><a href="https://kasaessentials.com" rel="noopener">Created by KASA Essentials</a></span>
-      <span><a href="/privacy.html">Privacy Policy</a> · <a href="/terms.html">Terms of Use</a> · <a href="/contact.html">Contact</a></span>
+      <span><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a> · <a href="/contact">Contact</a></span>
     </div>
   </div>
 </footer>
-<a class="buddy" href="/book.html#enquire" data-buddy aria-label="Book Kiko for your event" data-track="buddy_book"><span class="buddy-bubble">Want me at your event?</span><span class="kiko-art buddy-art"><img src="/assets/img/kiko-head-360.webp" alt="" width="360" height="360" loading="lazy">{BUDDY_EYES}</span></a>
-<div class="book-bar" aria-hidden="true"><a class="btn" href="/book.html#enquire" tabindex="-1" data-track="bar_book">{icon('calendar-heart')} Book Kiko for your event</a></div>
+<a class="buddy" href="/book#enquire" data-buddy aria-label="Book Kiko for your event" data-track="buddy_book"><span class="buddy-bubble">Want me at your event?</span><span class="kiko-art buddy-art"><img src="/assets/img/kiko-head-360.webp" alt="" width="360" height="360" loading="lazy">{BUDDY_EYES}</span></a>
+<div class="book-bar" aria-hidden="true"><a class="btn" href="/book#enquire" tabindex="-1" data-track="bar_book">{icon('calendar-heart')} Book Kiko for your event</a></div>
 <script src="/assets/js/config.js?v={page['v']}"></script>
 <script src="/assets/js/gsap.min.js" defer></script>
 <script src="/assets/js/ScrollTrigger.min.js" defer></script>
@@ -192,9 +197,9 @@ def build():
     # sitemap (most important pages first, one line each)
     order = ['index.html', 'book.html', 'school-events.html', 'about.html', 'adventures.html', 'gives-back.html', 'gallery.html', 'shop.html', 'contact.html', 'privacy.html', 'terms.html']
     today = datetime.date.today().isoformat()
-    urls = '\n'.join(f'  <url><loc>{SITE}/{"" if f == "index.html" else f}</loc><lastmod>{today}</lastmod></url>' for f in order)
+    urls = '\n'.join(f'  <url><loc>{SITE}/{clean(f)}</loc><lastmod>{today}</lastmod></url>' for f in order)
     open(os.path.join(OUT, 'sitemap.xml'), 'w').write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}\n</urlset>\n')
-    open(os.path.join(OUT, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nDisallow: /thank-you.html\nDisallow: /admin.html\n\nSitemap: {SITE}/sitemap.xml\n')
+    open(os.path.join(OUT, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nDisallow: /thank-you\nDisallow: /admin\n\nSitemap: {SITE}/sitemap.xml\n')
 
 
 if __name__ == '__main__':

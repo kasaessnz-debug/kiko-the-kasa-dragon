@@ -79,8 +79,8 @@ export default async (req) => {
       custom_text: { submit: { message: "This deposit secures your date. The balance is payable as set out in your quote." } },
       metadata: { brand: "kiko", type: "booking_deposit", booking_ref: ref, event_date: eventDate, source: "kiko-website" },
       payment_intent_data: { description: `Kiko booking deposit ${ref}`, statement_descriptor_suffix: "KIKO", metadata: { brand: "kiko", booking_ref: ref, event_date: eventDate } },
-      success_url: `${site}/thank-you.html?f=deposit&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${site}/deposit.html?ref=${encodeURIComponent(ref)}`,
+      success_url: `${site}/thank-you?f=deposit&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${site}/deposit?ref=${encodeURIComponent(ref)}`,
     });
     return json({ url: session.url });
   } catch (err) {

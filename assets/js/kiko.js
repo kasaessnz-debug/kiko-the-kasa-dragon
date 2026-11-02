@@ -420,7 +420,7 @@
   /* Kiko gets excited when you go near a booking button */
   let lastCheer = 0;
   document.addEventListener('pointerover', e => {
-    const a = e.target.closest('a[href*="book.html"]'); if (!a || Date.now() - lastCheer < 6000) return;
+    const a = e.target.closest('a[href*="/book"]'); if (!a || Date.now() - lastCheer < 6000) return;
     const pop = $$('[data-kiko], [data-react]').find(p => { const r = p.getBoundingClientRect(); return r.bottom > 40 && r.top < innerHeight - 40 && r.height > 20; });
     if (!pop) return; lastCheer = Date.now();
     sayHi(pop, ['Yes! Book me!', 'Ooh, pick me!', 'I’m ready when you are!'][Math.random() * 3 | 0]); hop(pop.matches('[data-react]') ? pop : $('[data-tilt]', pop));

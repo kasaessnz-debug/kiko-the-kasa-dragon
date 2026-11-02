@@ -388,7 +388,7 @@ dt{color:var(--muted)}dd{margin:0;overflow-wrap:anywhere}
     </article>`;
   }
 
-  const depLink = i => i.ref ? `${site}/deposit.html?ref=${encodeURIComponent(i.ref)}&email=${encodeURIComponent(i.data?.email || '')}` : '';
+  const depLink = i => i.ref ? `${site}/deposit?ref=${encodeURIComponent(i.ref)}&email=${encodeURIComponent(i.data?.email || '')}` : '';
   function quoteLink(i) {
     const d = i.data || {}; if (i.form !== 'booking' || !d.email) return '';
     const first = String(d.name || '').split(' ')[0], due = i.depositDue ?? info.defaultDeposit;
@@ -428,7 +428,7 @@ dt{color:var(--muted)}dd{margin:0;overflow-wrap:anywhere}
     $('#vBars').innerHTML = s.map(d => `<div class="b" style="height:${Math.max(1.5, d.visitors / max * 100)}%" data-t="${new Date(d.day + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}: ${d.visitors} visitors, ${d.views} views"><i style="height:${d.visitors ? Math.min(100, d.books / d.visitors * 100) : 0}%"></i></div>`).join('');
     const nice = { direct: 'Typed the address / bookmark', google: 'Google', facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok' };
     $('#vRefs').innerHTML = (v.refs || []).map(([k, n]) => `<li>${esc(nice[k] || k)} <span>${n}</span></li>`).join('') || '<li style="list-style:none;margin-left:-20px;color:var(--muted)">Nothing yet</li>';
-    const pg = { '/': 'Home', '/book.html': 'Book', '/about.html': 'About', '/gallery.html': 'Gallery', '/adventures.html': 'Adventures', '/gives-back.html': 'Gives Back', '/contact.html': 'Contact', '/shop.html': 'Shop', '/deposit.html': 'Deposit', '/thank-you.html': 'Thank you', '/terms.html': 'Terms', '/privacy.html': 'Privacy' };
+    const pg = { '/': 'Home', '/book': 'Book', '/about': 'About', '/gallery': 'Gallery', '/adventures': 'Adventures', '/gives-back': 'Gives Back', '/contact': 'Contact', '/shop': 'Shop', '/deposit': 'Deposit', '/thank-you': 'Thank you', '/terms': 'Terms', '/privacy': 'Privacy' };
     $('#vPages').innerHTML = (v.pages || []).map(([k, n]) => `<li>${esc(pg[k] || k)} <span>${n}</span></li>`).join('') || '<li style="list-style:none;margin-left:-20px;color:var(--muted)">Nothing yet</li>';
   }
 

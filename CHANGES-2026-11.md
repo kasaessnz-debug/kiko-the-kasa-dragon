@@ -58,3 +58,13 @@ Everything listed above is now built into it, so running `python _src/build.py` 
 - `gallery.html`: the video added under Videos.
 - `llms.txt`: Adventures line mentions the new video.
 - All in the generator (`_src/pages.py`: `VIDEOS['ray-white']`, `VIDEO_DATES`; `.adv-feature` styles at the end of `assets/css/kiko.css`).
+
+## 2026-11-02 (night): one address for every page
+Search Console called /book.html "unknown to Google". Live, /book and /book.html both answered 200 with no redirect (the old /book 301 had no `force`, so Netlify never used it), so each page had two addresses.
+Chosen form: the clean one, `/book`. Both forms answered 200, so that test was a tie; clean matches kasaessentials.com, whose forced `.html` 301s are proven live with no loop.
+- Every page except `404.html`: canonical, `og:url`, schema URLs and internal links use the clean form. `404.html` keeps its filename because Netlify needs it; its links changed, its noindex canonical did not.
+- `sitemap.xml`, `llms.txt`, `robots.txt`, `admin.webmanifest`: clean form.
+- `netlify.toml`: forced 301 from `/<page>.html` to `/<page>` for all 13 pages, and `/index.html` to `/`. `/bookings` now goes straight to `/book`, `/hq` straight to `/admin` (no chains). Removed the old `/book` and `/admin` redirects, which pointed at the `.html` form and would have looped. `/admin` gets the same noindex and no-store headers as `/admin.html`.
+- `netlify/functions/create-deposit.js`, `submission-created.js`: Stripe return addresses and the emailed deposit link use the clean form. Old emailed links still work through the 301, which keeps `?ref=`.
+- `assets/js/kiko.js`: the book-link cheer now looks for `/book`.
+- `_src/build.py` and `_src/pages.py`: same changes, so a rebuild keeps them. Not run: Python isn't installed on this PC.
