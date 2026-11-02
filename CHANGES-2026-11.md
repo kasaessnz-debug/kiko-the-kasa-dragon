@@ -41,3 +41,20 @@ Each also replaced in `og:title` and the WebPage schema name.
 - `book.html`: "Prefer to talk? Call ..." added to the note under the enquiry form.
 - `llms.txt`: "Phone:" added under Contact.
 - `assets/js/config.js`: `phone` deliberately left blank. If it is set, `kiko.js` adds a second, script-written "Call or text" line on the contact page.
+
+## 2026-11-02 (later): generator is back
+
+The page generator is now in this repo at `_src/` (recovered from the 28 Oct update, which also adds the
+real costume photos and videos, the Gallery rewrite and the visitor counter in Kiko HQ).
+Everything listed above is now built into it, so running `python _src/build.py` keeps these changes:
+- `_src/build.py`: `PHONE` (schema `telephone` + footer link), `SOCIALS` (footer links + schema `sameAs`), Kasa Essentials parent company, "Created by KASA Essentials" credit, School Events in the menu and sitemap.
+- `_src/pages.py`: the new titles, the gallery socials (`{{socials}}`), the phone lines on Contact and Book (`{{tel}}`), and the School Events page, whose content lives in `_src/school_events.html`.
+- The stylesheet version is set automatically on every build, so no manual `?v=` change is needed.
+- Fixed: the Contact page list had its first two points repeated after the phone edit; it now shows each point once.
+
+## 2026-11-02 (evening): Ray White video
+- New video `assets/video/kiko-ray-white.mp4` (62s, 540x960, from the owner's IMG_1572.MOV) + poster.
+- `adventures.html`: new "Latest adventure: Kiko visits Ray White" section above the snapshots, with an "Invite Kiko to your workplace" button. VideoObject schema on that page.
+- `gallery.html`: the video added under Videos.
+- `llms.txt`: Adventures line mentions the new video.
+- All in the generator (`_src/pages.py`: `VIDEOS['ray-white']`, `VIDEO_DATES`; `.adv-feature` styles at the end of `assets/css/kiko.css`).

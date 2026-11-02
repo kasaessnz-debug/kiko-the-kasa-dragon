@@ -46,6 +46,24 @@ async function syncStripe(store) {
   }
 }
 
+// Last 30 days of anonymous visit totals (written by kiko-hit), newest last.
+async function visitStats(store) {
+  try {
+    const fmt = new Intl.DateTimeFormat("en-CA", { timeZone: "Australia/Sydney", year: "numeric", month: "2-digit", day: "2-digit" });
+    const days = [...Array(30)].map((_, i) => fmt.format(new Date(Date.now() - (29 - i) * 864e5)));
+    const docs = await Promise.all(days.map((d) => store.get(`stats/${d}`, { type: "json" }).catch(() => null)));
+    const pages = {}, refs = {}, devices = {}, events = {};
+    const add = (to, from) => Object.entries(from || {}).forEach(([k, v]) => { to[k] = (to[k] || 0) + v; });
+    const series = days.map((d, i) => {
+      const s = docs[i] || {};
+      add(pages, s.pages); add(refs, s.refs); add(devices, s.devices); add(events, s.events);
+      return { day: d, views: s.views || 0, visitors: (s.ids || []).length, books: (s.events || {}).book_click || 0 };
+    });
+    const top = (o, n = 8) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, n);
+    return { series, pages: top(pages), refs: top(refs), devices, events };
+  } catch (e) { console.error("visit stats", e && e.message); return null; }
+}
+
 export default async (req) => {
   if (!process.env.KIKO_ADMIN_PASSWORD) return json({ error: "Add KIKO_ADMIN_PASSWORD in Netlify (Site configuration → Environment variables), then redeploy." }, 503);
   const url = new URL(req.url);
@@ -74,7 +92,7 @@ export default async (req) => {
     items.sort((a, b) => String(b.created).localeCompare(String(a.created)));
     const site = process.env.URL || url.origin;
     return json({
-      items, statuses: STATUSES, site, stripe,
+      items, statuses: STATUSES, site, stripe, visits: await visitStats(store),
       defaultDeposit: parseFloat(process.env.KIKO_DEPOSIT_AUD || "") || null,
       emails: !!process.env.BREVO_API_KEY,
       calendar: `${site}/.netlify/functions/kiko-calendar?t=${calendarToken()}`,

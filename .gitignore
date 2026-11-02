@@ -4,3 +4,5 @@ node_modules/
 Thumbs.db
 *.zip
 kiko-website/
+__pycache__/
+*.pyc

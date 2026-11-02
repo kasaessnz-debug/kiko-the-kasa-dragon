@@ -70,9 +70,21 @@
     fbq('init', CFG.metaPixel); fbq('track', 'PageView');
   }
   const CONVERT = { booking_enquiry_thanks: ['generate_lead', 'Lead'], deposit_paid: ['purchase', 'Purchase'], form_submit: ['sign_up', 'Contact'] };
+  /* anonymous visit counter for Kiko HQ — no cookies, nothing personal stored */
+  const HIT = '/.netlify/functions/kiko-hit', KEEP = ['booking_step', 'booking_enquiry_submit', 'form_submit', 'deposit_checkout', 'video_sound_on', 'photo_open'];
+  const beacon = body => { try { if (navigator.doNotTrack === '1') return; const d = JSON.stringify(body);
+    if (!(navigator.sendBeacon && navigator.sendBeacon(HIT, new Blob([d], { type: 'text/plain' })))) fetch(HIT, { method: 'POST', body: d, keepalive: true }).catch(() => {}); } catch (e) {} };
+  try {
+    const first = !sessionStorage.getItem('kiko_seen'); sessionStorage.setItem('kiko_seen', '1');
+    const q = new URLSearchParams(location.search);
+    beacon({ p: location.pathname, r: document.referrer || 'direct', u: q.get('utm_source') || '', first });
+  } catch (e) { beacon({ p: location.pathname }); }
   const _track = track;
   track = (name, data) => { _track(name, data); const c = CONVERT[name];
-    if (c && window.gtag) gtag('event', c[0], data || {}); if (c && window.fbq) fbq('track', c[1]); };
+    if (c && window.gtag) gtag('event', c[0], data || {}); if (c && window.fbq) fbq('track', c[1]);
+    if (KEEP.includes(name) && !(name === 'booking_step' && data && data.step !== 2)) beacon({ p: location.pathname, e: name }); };
+  document.addEventListener('click', e => { const a = e.target.closest('[data-track]'); if (!a) return;
+    const n = a.dataset.track; track(n); if (/book/.test(n)) beacon({ p: location.pathname, e: 'book_click' }); });
 
   if (CFG.phone) {
     $$('[data-email-line]').forEach(el => el.insertAdjacentHTML('afterend', `<br>Call or text: <a href="tel:${CFG.phone.replace(/\s/g, '')}">${CFG.phone}</a>`));
@@ -230,6 +242,49 @@
     const empty = $('[data-gallery-empty]'); if (empty) empty.hidden = n > 0;
   }));
 
+  /* real Kiko videos: play only while on screen, one with sound at a time */
+  const vids = $$('[data-vid] video');
+  if (vids.length) {
+    const io = 'IntersectionObserver' in window && new IntersectionObserver(es => es.forEach(e => {
+      const v = e.target;
+      if (e.isIntersecting && !RM) { v.preload = 'auto'; const p = v.play(); if (p) p.catch(() => {}); }
+      else if (!e.isIntersecting) v.pause();
+    }), { threshold: 0.35 });
+    const near = 'IntersectionObserver' in window && new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.poster = e.target.dataset.poster; near.unobserve(e.target); } }), { rootMargin: '900px 0px' });
+    vids.forEach(v => { if (near) near.observe(v); else v.poster = v.dataset.poster; if (io) io.observe(v); v.addEventListener('click', () => v.paused ? v.play() : v.pause()); });
+    $$('[data-sound]').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      const v = b.closest('[data-vid]').querySelector('video'); const on = v.muted;
+      vids.forEach(o => { o.muted = true; const ob = o.closest('[data-vid]').querySelector('[data-sound]'); ob.setAttribute('aria-pressed', 'false'); ob.setAttribute('aria-label', 'Turn sound on'); });
+      v.muted = !on; b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-label', on ? 'Turn sound off' : 'Turn sound on');
+      if (on) { v.currentTime = 0; v.play().catch(() => {}); track('video_sound_on'); }
+    }));
+  }
+
+  /* gentle 3D tilt on the real photos and videos */
+  if (!RM && matchMedia('(hover:hover)').matches) $$('.snap, .vid-frame').forEach(el => {
+    el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); el.style.setProperty('--ry', ((e.clientX - r.left) / r.width - .5) * 14 + 'deg'); el.style.setProperty('--rx', ((e.clientY - r.top) / r.height - .5) * -14 + 'deg'); });
+    el.addEventListener('pointerleave', () => { el.style.setProperty('--ry', '0deg'); el.style.setProperty('--rx', '0deg'); });
+  });
+
+  /* photo lightbox */
+  const shots = $$('[data-lightbox]');
+  if (shots.length) {
+    const lb = document.createElement('dialog'); lb.className = 'lb'; lb.setAttribute('aria-label', 'Photo viewer');
+    lb.innerHTML = '<img alt=""><p></p><button class="lb-prev" type="button" aria-label="Previous photo">‹</button><button class="lb-next" type="button" aria-label="Next photo">›</button><button class="lb-x" type="button" aria-label="Close">×</button>';
+    document.body.appendChild(lb);
+    let k = 0; const im = $('img', lb), cap = $('p', lb);
+    const showShot = i => { k = (i + shots.length) % shots.length; const s = shots[k]; im.src = s.dataset.lightbox; im.alt = $('img', s).alt; cap.textContent = ($('figcaption', s) || {}).textContent || ''; };
+    shots.forEach((s, i) => { s.tabIndex = 0; s.setAttribute('role', 'button');
+      const open = () => { showShot(i); lb.showModal(); track('photo_open'); };
+      s.addEventListener('click', open); s.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } }); });
+    $('.lb-prev', lb).onclick = () => showShot(k - 1); $('.lb-next', lb).onclick = () => showShot(k + 1); $('.lb-x', lb).onclick = () => lb.close();
+    lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+    lb.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') showShot(k - 1); if (e.key === 'ArrowRight') showShot(k + 1); });
+    let sx = null; lb.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', e => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) showShot(k + (dx < 0 ? 1 : -1)); sx = null; });
+  }
+
   /* ---------- smooth scroll + motion ---------- */
   let lenis = null;
   function scrollToEl(el, offset = -110) {
@@ -247,7 +302,7 @@
     if (menu && menu.classList.contains('open')) setMenu(false);
   });
 
-  if (RM || !window.gsap || !window.ScrollTrigger) return;
+  if (RM || !window.gsap || !window.ScrollTrigger) { $$('.stage .layer').forEach(l => { l.style.transform = 'none'; }); return; }
   gsap.registerPlugin(ScrollTrigger);
 
   if (window.Lenis) {
@@ -271,7 +326,7 @@
 
     // one orchestrated entrance: the scene settles, Kiko bounds up out of it
     const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
-    intro.from(layers, { scale: 1.08, duration: 1.4, stagger: 0.04 }, 0)
+    intro.fromTo(layers, { scale: 1.08 }, { scale: 1, duration: 1.4, stagger: 0.04 }, 0)
       .from(copy ? copy.children : [], { y: 30, opacity: 0, duration: .8, stagger: .08 }, .15);
     if (tilt) intro.from(tilt, { yPercent: 38, scale: .78, rotation: 7, opacity: 0, duration: 1.1, ease: 'back.out(1.6)' }, .25);
     if (isHome && pop) intro.add(() => sayHi(pop, 'G’day! I’m Kiko!'), 1.3);
