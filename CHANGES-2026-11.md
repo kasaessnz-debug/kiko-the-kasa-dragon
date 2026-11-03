@@ -68,3 +68,9 @@ Chosen form: the clean one, `/book`. Both forms answered 200, so that test was a
 - `netlify/functions/create-deposit.js`, `submission-created.js`: Stripe return addresses and the emailed deposit link use the clean form. Old emailed links still work through the 301, which keeps `?ref=`.
 - `assets/js/kiko.js`: the book-link cheer now looks for `/book`.
 - `_src/build.py` and `_src/pages.py`: same changes, so a rebuild keeps them. Not run: Python isn't installed on this PC.
+
+## 2026-11-04: children’s privacy
+Ahead of Australia’s Children’s Online Privacy Code (due by 10 Dec 2026). No age pop-up, no birthdates.
+- `shop.html`: the 18-or-over line under the "Keep me updated" button. That form (`kiko-updates`) is the only email sign-up on the site.
+- `privacy.html`: the existing Children section reworded; "Last updated" now November 2026.
+- `_src/pages.py`: same changes, so a rebuild keeps them. Not run: Python isn’t installed on this PC.

@@ -774,6 +774,7 @@ SHOP = inner_hero('The Kiko Shop', 'Take a little Kiko adventure home with you.'
           <div class="field full"><span class="legend">I’m most excited about <span class="opt">(optional)</span></span><div class="pick"><label><input type="checkbox" name="interest" value="Plush toys"><span>Plush toys</span></label><label><input type="checkbox" name="interest" value="Storybooks"><span>Storybooks</span></label><label><input type="checkbox" name="interest" value="Apparel"><span>Apparel</span></label><label><input type="checkbox" name="interest" value="School gear"><span>School gear</span></label></div></div>
         </div>
         <div class="form-nav"><button class="btn" type="submit">{{i:send}} Keep me updated</button></div>
+        <p style="margin:14px 0 0;font-size:.92rem;color:var(--forest-2)">You must be 18 or over to sign up. Under 18? Ask a parent or guardian to sign up for you.</p>
       </form>
     </div>
   </div>
@@ -835,7 +836,7 @@ PRIVACY = '''
 <section class="section" style="padding-top:150px">
   <div class="wrap measure">
     <h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Privacy Policy</h1>
-    <p><i>Last updated: October 2026</i></p>
+    <p><i>Last updated: November 2026</i></p>
     <p>Kiko — The KASA Dragon is created and owned by KASA Essentials Pty Ltd (“we”, “us”). We respect your privacy and handle personal information in line with the <i>Privacy Act 1988</i> (Cth) and the Australian Privacy Principles.</p>
     <h3>What we collect</h3>
     <p>When you send a booking enquiry, a contact message or sign up for updates, we collect the details you give us — such as your name, organisation, email, phone number and event details. We also record basic information about how you found the site (for example the referring website or campaign link). If you pay a deposit, Stripe processes the payment; we receive your name, email, phone and the amount paid, but we never see or store your full card details.</p>
@@ -848,7 +849,7 @@ PRIVACY = '''
     <h3>Your choices</h3>
     <p>You can ask to access, correct or delete your information, or unsubscribe from updates at any time, by emailing <a href="mailto:info@kasaessentials.com">info@kasaessentials.com</a> or using the <a href="/contact">contact page</a>. If you have a privacy concern, contact us first; if you’re not satisfied with our response you can contact the Office of the Australian Information Commissioner (oaic.gov.au).</p>
     <h3>Children</h3>
-    <p>Our forms are intended for parents, guardians, schools and organisations. Please don’t submit children’s personal information through the site.</p>
+    <p>This site is for parents, guardians, schools and event organisers. We don’t knowingly collect personal information from children. If you’re a parent or guardian and think your child has given us their details, email <a href="mailto:info@kasaessentials.com">info@kasaessentials.com</a> and we’ll delete them.</p>
   </div>
 </section>
 '''
