@@ -74,3 +74,8 @@ Ahead of Australia’s Children’s Online Privacy Code (due by 10 Dec 2026). No
 - `shop.html`: the 18-or-over line under the "Keep me updated" button. That form (`kiko-updates`) is the only email sign-up on the site.
 - `privacy.html`: the existing Children section reworded; "Last updated" now November 2026.
 - `_src/pages.py`: same changes, so a rebuild keeps them. Not run: Python isn’t installed on this PC.
+
+## 2026-11-04 (later): email list only by choice
+- `book.html`, `_src/pages.py`: unticked box "Send me occasional Kiko news and event ideas (18+)".
+- `netlify/functions/submission-created.js`: booking joins the Brevo list only if that box is ticked; contact no longer joins. Shop sign-up unchanged.
+- `admin.html`: "Delete someone’s details" side panel; label for the new field. New `CLAUDE.md` holds the same checklist, blocked from the public site in `netlify.toml`.

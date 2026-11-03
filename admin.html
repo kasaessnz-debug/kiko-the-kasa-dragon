@@ -250,6 +250,15 @@ dt{color:var(--muted)}dd{margin:0;overflow-wrap:anywhere}
       </section>
       <aside class="side">
         <div class="panel"><h3>To do</h3><ul class="todo" id="todo"></ul></div>
+        <div class="panel"><h3>Delete someone’s details</h3>
+          <ol style="margin:0;padding-left:20px;font-size:.9rem;display:grid;gap:6px">
+            <li><b>Kiko HQ:</b> search their name or email, open each record, tap Delete, then tap again. Check Bookings, Messages and Shop sign-ups.</li>
+            <li><b>Netlify Forms:</b> Netlify → kikothebriko → Forms. Open booking, contact and kiko-updates, tick their submission, choose Delete submission. Also check Spam submissions in the same menu.</li>
+            <li><b>Brevo:</b> Contacts → search their email → delete the contact. This account is shared with KASA, so it removes them from KASA lists too.</li>
+            <li><b>Your inbox:</b> delete the enquiry alert emails about them.</li>
+            <li><b>Paid a deposit?</b> Stripe and tax records stay. Tell the parent what you kept and why.</li>
+            <li><b>Reply</b> to confirm it’s done.</li>
+          </ol></div>
         <div class="panel"><h3>Coming up</h3><ul class="up" id="upcoming"></ul></div>
         <div class="panel feed"><h3>Kiko bookings on your phone</h3>
           <p style="margin:0;color:var(--muted);font-size:.9rem">Subscribe once and every booked Kiko event shows in your phone’s calendar by itself, with a reminder the day before.</p>
@@ -284,7 +293,7 @@ dt{color:var(--muted)}dd{margin:0;overflow-wrap:anywhere}
   const tel = p => String(p || '').replace(/[^\d+]/g, '');
   const isBooking = i => i.form === 'booking' || i.form === 'deposit';
   const BOOKED = ['Deposit paid', 'Confirmed', 'Completed'];
-  const LBL = { name: 'Name', organisation: 'Organisation', email: 'Email', phone: 'Phone', event_type: 'Event type', event_name: 'Event name', event_date: 'Event date', start_time: 'Start time', finish_time: 'Finish time', venue_suburb: 'Venue / suburb', state: 'State', attendance: 'Expected attendance', appearance_style: 'Appearance style', kiko_activities: 'Kiko should', event_details: 'About the event', heard_about: 'Heard about Kiko', reason: 'Reason', message: 'Message', first_name: 'First name', interest: 'Interested in', understand_not_confirmed: 'Understands not yet confirmed', utm_source: 'Came from (source)', utm_medium: 'Came from (medium)', utm_campaign: 'Campaign', referrer: 'Referring site', landing_page: 'First page visited' };
+  const LBL = { name: 'Name', organisation: 'Organisation', email: 'Email', phone: 'Phone', event_type: 'Event type', event_name: 'Event name', event_date: 'Event date', start_time: 'Start time', finish_time: 'Finish time', venue_suburb: 'Venue / suburb', state: 'State', attendance: 'Expected attendance', appearance_style: 'Appearance style', kiko_activities: 'Kiko should', event_details: 'About the event', heard_about: 'Heard about Kiko', reason: 'Reason', message: 'Message', first_name: 'First name', interest: 'Interested in', understand_not_confirmed: 'Understands not yet confirmed', news_optin: 'Wants Kiko news', utm_source: 'Came from (source)', utm_medium: 'Came from (medium)', utm_campaign: 'Campaign', referrer: 'Referring site', landing_page: 'First page visited' };
   const HIDE = new Set(['form-name', 'bot-field', 'ip', 'user_agent']);
   const nice = k => LBL[k] || k.replace(/[_-]+/g, ' ').replace(/^\w/, c => c.toUpperCase());
   const val = v => Array.isArray(v) ? v.join(', ') : typeof v === 'object' && v ? JSON.stringify(v) : String(v);

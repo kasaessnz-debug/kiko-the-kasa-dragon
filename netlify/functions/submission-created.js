@@ -1,13 +1,13 @@
 // Runs automatically every time a Netlify form is submitted (Netlify calls a function with this exact name).
 // 1) emails you the full enquiry with a booking reference and a ready-made deposit link
 // 2) sends the customer an instant, friendly confirmation
-// 3) optionally adds them to a Brevo list
+// 3) adds them to the Brevo list only if they asked: the shop sign-up, or the unticked box on the booking form
 //
 // Netlify environment variables:
 //   BREVO_API_KEY       Brevo → SMTP & API → API keys (the same Brevo account KASA uses is fine)
 //   KIKO_FROM_EMAIL     a sender verified in Brevo, e.g. hello@yourkikodomain.com.au
 //   KIKO_NOTIFY_EMAIL   where new enquiries should land (your inbox)
-//   BREVO_LIST_ID       optional: Brevo list number for Kiko enquiries / updates
+//   BREVO_LIST_ID       optional: Brevo list number for Kiko updates
 import { sendMail, addContact, esc, shell } from "../lib/brevo.js";
 import { connectLambda, saveSubmission } from "../lib/store.js";
 
@@ -15,7 +15,7 @@ const LABELS = {
   event_type: "Event type", event_date: "Event date", state: "State", start_time: "Start", finish_time: "Finish",
   venue_suburb: "Venue / suburb", event_name: "Event name", attendance: "Attendance", appearance_style: "Appearance",
   kiko_activities: "Kiko should", event_details: "About the event", name: "Name", organisation: "Organisation",
-  email: "Email", phone: "Phone", heard_about: "Heard about Kiko", reason: "Reason", message: "Message",
+  email: "Email", phone: "Phone", heard_about: "Heard about Kiko", news_optin: "Wants Kiko news", reason: "Reason", message: "Message",
   first_name: "First name", interest: "Interested in", utm_source: "Source", utm_medium: "Medium",
   utm_campaign: "Campaign", referrer: "Referrer", landing_page: "Landing page",
 };
@@ -71,7 +71,8 @@ export const handler = async (event) => {
       await sendMail({ to: notify, subject: "New Kiko shop sign-up", html: shell("New shop sign-up", `<table style="border-collapse:collapse">${rows}</table>`) });
       await sendMail({ to: d.email, subject: "You’re on Kiko’s list!", html: shell("You’re on the list!", `<p>Hi ${esc(first || "there")},</p><p>You’ll be first to hear when Kiko plush toys, books and more arrive.</p><p>Big smiles,<br>Kiko</p>`) });
     }
-    if (form === "booking" || form === "contact") await addContact(d.email, first, process.env.BREVO_LIST_ID);
+    // Enquiring never joins the list on its own. Contact and deposit forms have no list option.
+    if (form === "booking" && d.news_optin === "yes") await addContact(d.email, first, process.env.BREVO_LIST_ID);
     return { statusCode: 200, body: "ok" };
   } catch (e) {
     console.error("submission-created", e && e.message);
