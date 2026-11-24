@@ -17,7 +17,7 @@ GO-LIVE CHECKLIST (Netlify -> your Kiko site)
      KIKO_DEPOSIT_AUD      your standard deposit in dollars, e.g. 150
      KASA_ABN              optional, printed on the deposit tax invoice
      STRIPE_KIKO_WEBHOOK_SECRET   from step 4
-     BREVO_API_KEY, KIKO_FROM_EMAIL, KIKO_NOTIFY_EMAIL, BREVO_LIST_ID   from step 5
+     BREVO_API_KEY, KIKO_NOTIFY_EMAIL, ALERT_BACKUP_EMAIL, BREVO_LIST_ID   from step 5
    After adding or changing variables: Deploys -> Trigger deploy.
 4. Stripe webhook (instant "deposit paid"):
    Stripe -> Developers -> Webhooks -> Add destination -> event checkout.session.completed
@@ -26,13 +26,15 @@ GO-LIVE CHECKLIST (Netlify -> your Kiko site)
    Backup: Kiko HQ also checks Stripe itself every couple of minutes, so a paid deposit
    still shows even if the webhook ever fails.
 5. Brevo (automatic emails — optional, same Brevo account as KASA):
-   a) Senders, Domains & Dedicated IPs -> Domains -> Add kikothekasadragon.com,
-      add the DNS records it shows where you bought the domain, click Verify.
-   b) Senders -> Add hello@kikothekasadragon.com (or similar).
+   a) Emails always send from info@kasaessentials.com as "Kiko — The KASA Dragon".
+      Check Senders, Domains & Dedicated IPs -> Senders lists info@kasaessentials.com
+      as verified (KASA's account normally already has it).
+   b) KIKO_FROM_EMAIL is no longer used. Delete it from Netlify if it's there.
    c) SMTP & API -> API keys -> Generate "Kiko website" -> paste into BREVO_API_KEY.
    d) Optional: Contacts -> Lists -> create "Kiko" -> its ID number into BREVO_LIST_ID.
-      KIKO_FROM_EMAIL   = the sender from (b)
-      KIKO_NOTIFY_EMAIL = where you want new-enquiry alerts
+      KIKO_NOTIFY_EMAIL  = where you want new-enquiry alerts
+      ALERT_BACKUP_EMAIL = optional second inbox. Gets its own copy of every alert
+                           (booking, contact, shop sign-up, deposit paid).
 6. Contact details: edit assets/js/config.js (email, phone, socials, GA4, Meta Pixel).
    Anything left blank stays hidden.
 7. Test once: send yourself a booking on the website, open Kiko HQ, set a $1 deposit on

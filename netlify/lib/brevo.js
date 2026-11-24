@@ -2,14 +2,16 @@
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 export { esc };
 
-export async function sendMail({ to, subject, html, replyTo }) {
-  const key = process.env.BREVO_API_KEY, from = process.env.KIKO_FROM_EMAIL;
-  if (!key || !from || !to) return { skipped: true };
+// Always sends from KASA's verified inbox. KIKO_FROM_EMAIL is no longer used.
+const SENDER = { name: "Kiko — The KASA Dragon", email: "info@kasaessentials.com" };
+const same = (a, b) => String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase();
+
+async function sendOne(key, { to, subject, html, replyTo }) {
   const r = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: { "api-key": key, "Content-Type": "application/json", accept: "application/json" },
     body: JSON.stringify({
-      sender: { name: "Kiko — The KASA Dragon", email: from },
+      sender: SENDER,
       to: [{ email: to }],
       ...(replyTo ? { replyTo: { email: replyTo } } : {}),
       subject,
@@ -17,7 +19,21 @@ export async function sendMail({ to, subject, html, replyTo }) {
     }),
   });
   if (!r.ok) console.error("brevo", r.status, await r.text());
-  return { ok: r.ok };
+  return r.ok;
+}
+
+export async function sendMail({ to, subject, html, replyTo }) {
+  const key = process.env.BREVO_API_KEY;
+  if (!key || !to) return { skipped: true };
+  const ok = await sendOne(key, { to, subject, html, replyTo });
+  // Owner alerts (booking, contact, shop sign-up, deposit paid) also go, as a separate email,
+  // to the backup inbox when ALERT_BACKUP_EMAIL is set.
+  const notify = process.env.KIKO_NOTIFY_EMAIL, backup = process.env.ALERT_BACKUP_EMAIL;
+  if (notify && backup && same(to, notify) && !same(backup, notify)) {
+    try { await sendOne(key, { to: backup.trim(), subject, html, replyTo }); }
+    catch (e) { console.error("brevo backup", e && e.message); }
+  }
+  return { ok };
 }
 
 export async function addContact(email, firstName, listId) {

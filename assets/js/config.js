@@ -4,7 +4,7 @@
    Anything left blank simply stays hidden on the site.
    ========================================================== */
 window.KIKO = {
-  // Kiko's public email, e.g. "hello@kikothedragon.com.au"
+  // Kiko's public email
   email: "info@kasaessentials.com",
 
   // Kiko's phone number for bookings, e.g. "0400 000 000"

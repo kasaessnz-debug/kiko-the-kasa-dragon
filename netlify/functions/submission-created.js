@@ -5,8 +5,9 @@
 //
 // Netlify environment variables:
 //   BREVO_API_KEY       Brevo → SMTP & API → API keys (the same Brevo account KASA uses is fine)
-//   KIKO_FROM_EMAIL     a sender verified in Brevo, e.g. hello@yourkikodomain.com.au
 //   KIKO_NOTIFY_EMAIL   where new enquiries should land (your inbox)
+//   ALERT_BACKUP_EMAIL  optional: a second inbox that gets its own copy of every alert
+// Emails always send from info@kasaessentials.com (set in netlify/lib/brevo.js).
 //   BREVO_LIST_ID       optional: Brevo list number for Kiko updates
 import { sendMail, addContact, esc, shell } from "../lib/brevo.js";
 import { connectLambda, saveSubmission } from "../lib/store.js";
