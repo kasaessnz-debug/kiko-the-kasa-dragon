@@ -1,5 +1,5 @@
-/* Kiko — The KASA Dragon · interactions
-   Motion: GSAP + ScrollTrigger + Lenis. Everything degrades to a static page
+/* Kiko — The KASA Dragon · interactions (v2 design, Nov 2026)
+   Motion: GSAP + ScrollTrigger. Everything degrades to a static page
    when JS is off or the visitor prefers reduced motion. */
 (() => {
   const $ = (s, c = document) => c.querySelector(s);
@@ -30,7 +30,7 @@
 
   /* ---------- header: hide on scroll down, show on scroll up ---------- */
   const head = $('.site-head'); let lastY = scrollY;
-  const bar = $('.book-bar'); const hero = $('.hero');
+  const bar = $('.book-bar'); const hero = $('.home-hero, .page-hero');
   addEventListener('scroll', () => {
     const y = scrollY;
     if (head) {
@@ -90,55 +90,28 @@
     $$('[data-email-line]').forEach(el => el.insertAdjacentHTML('afterend', `<br>Call or text: <a href="tel:${CFG.phone.replace(/\s/g, '')}">${CFG.phone}</a>`));
   }
 
-  /* ---------- mobile menu ---------- */
-  const menu = $('#mobile-menu'); const openBtn = $('.nav .menu-btn'); const closeBtn = menu && $('.close', menu);
+  /* ---------- menu (phones + small laptops) ---------- */
+  const menu = $('#mobile-menu'); const openBtn = $('.nav .menu-btn');
   const setMenu = open => {
     if (!menu) return;
     menu.classList.toggle('open', open); document.body.classList.toggle('menu-open', open);
-    openBtn.setAttribute('aria-expanded', String(open));
-    if (open) { closeBtn.focus(); lenis && lenis.stop(); } else { openBtn.focus(); lenis && lenis.start(); }
+    openBtn.setAttribute('aria-expanded', String(open)); openBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    if (head) head.classList.remove('is-hidden');
+    if (open) { const f = $('a', menu); f && setTimeout(() => f.focus({ preventScroll: true }), 300); }
   };
-  openBtn && openBtn.addEventListener('click', () => setMenu(true));
-  closeBtn && closeBtn.addEventListener('click', () => setMenu(false));
-  addEventListener('keydown', e => { if (e.key === 'Escape' && menu && menu.classList.contains('open')) setMenu(false); });
-
-  /* ---------- Kiko says hi ---------- */
-  const LINES = ['G’day! I’m Kiko!', 'High five!', 'Want me at your event?', 'Kindness is my superpower!', 'Let’s go on an adventure!', 'Rawr! That means hello.', 'Big smiles only!'];
-  let li = 0;
-  const sayHi = (pop, text) => {
-    const b = $('[data-bubble]', pop); if (!b) return;
-    b.textContent = text || LINES[li++ % LINES.length];
-    b.classList.add('show'); clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('show'), 2600);
-    const hint = $('.tap-hint', pop); if (hint) hint.style.display = 'none';
-  };
-  const hop = el => {
-    if (RM || !window.gsap) return;
-    gsap.timeline()
-      .to(el, { scaleY: .86, scaleX: 1.08, duration: .12, ease: 'power2.in' })
-      .to(el, { scaleY: 1.06, scaleX: .96, y: -46, duration: .26, ease: 'power2.out' })
-      .to(el, { scaleY: 1, scaleX: 1, y: 0, duration: .5, ease: 'bounce.out' });
-  };
-  const waveHand = el => {
-    if (RM || !window.gsap || !el || el._waving) return; el._waving = true;
-    gsap.timeline({ onComplete: () => { el._waving = false; } })
-      .to(el, { rotation: -20, duration: .22, ease: 'sine.out' })
-      .to(el, { rotation: 14, duration: .26, ease: 'sine.inOut', repeat: 4, yoyo: true })
-      .to(el, { rotation: 0, duration: .35, ease: 'sine.inOut' });
-  };
-  $$('[data-kiko]').forEach(pop => {
-    const body = $('[data-kiko-body]', pop); const tilt = $('[data-tilt]', pop);
-    const go = () => { sayHi(pop); hop(tilt); waveHand($('[data-wave]', pop)); track('kiko_hi'); };
-    body.addEventListener('click', go);
-    body.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
-  });
+  openBtn && openBtn.addEventListener('click', () => setMenu(!menu.classList.contains('open')));
+  menu && $$('a', menu).forEach(a => a.addEventListener('click', () => setMenu(false)));
+  addEventListener('keydown', e => { if (e.key === 'Escape' && menu && menu.classList.contains('open')) { setMenu(false); openBtn.focus(); } });
 
   /* ---------- pre-fill from links ---------- */
   const qs = new URLSearchParams(location.search);
   const t = qs.get('type');
   if (t) { const r = $$('input[name=event_type]').find(i => i.value === t); if (r) r.checked = true; }
+  const sty = qs.get('style');
+  if (sty) { const r = $$('input[name=appearance_style]').find(i => i.value === sty); if (r) r.checked = true; }
   const reason = qs.get('reason');
   if (reason) { const s = $('#c-reason'); if (s) { [...s.options].forEach(o => { if (o.text === reason) s.value = o.text; }); } }
-  $$('#f-date,#d-date').forEach(d => { d.min = new Date().toISOString().slice(0, 10); });
+  $$('#f-date,#d-date,#k-date').forEach(d => { d.min = new Date().toISOString().slice(0, 10); });
   if (qs.get('ref')) { const r = $('#d-ref'); if (r) r.value = qs.get('ref'); }
   if (qs.get('email')) { const r = $('#d-email'); if (r) r.value = qs.get('email'); }
 
@@ -186,7 +159,7 @@
   });
   $$('form[data-simple]').forEach(form => form.addEventListener('submit', e => {
     if (!validate(form)) { e.preventDefault(); return; }
-    track('form_submit', { form: form.getAttribute('name') });
+    track(form.getAttribute('name') === 'check-date' ? 'booking_enquiry_submit' : 'form_submit', { form: form.getAttribute('name') });
   }));
 
   /* deposit → Stripe Checkout (Netlify function, same Stripe account as KASA) */
@@ -231,6 +204,7 @@
     if (f === 'deposit') { h.textContent = 'Deposit received!'; $('.lede').textContent = 'Your date with Kiko is locked in. A receipt is on its way to your inbox.'; track('deposit_paid'); }
     else if (f === 'updates') { h.textContent = 'You’re on the list!'; $('.lede').textContent = 'You’ll be first to hear when Kiko products arrive.'; }
     else if (f === 'booking') track('booking_enquiry_thanks');
+    else if (f === 'check') { h.textContent = 'Date check sent!'; $('.lede').textContent = 'We’ll check Kiko’s diary and reply by email with availability and a quote.'; track('booking_enquiry_thanks'); }
   }
 
   /* gallery filter */
@@ -285,13 +259,12 @@
     lb.addEventListener('touchend', e => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) showShot(k + (dx < 0 ? 1 : -1)); sx = null; });
   }
 
-  /* ---------- smooth scroll + motion ---------- */
-  let lenis = null;
+  /* ---------- smooth anchor scroll ---------- */
   function scrollToEl(el, offset = -110) {
     if (!el) return;
-    const top = el.getBoundingClientRect().top + scrollY + offset;
-    if (Math.abs(el.getBoundingClientRect().top) < 140 && offset < 0 && el.getBoundingClientRect().top > 60) return;
-    if (lenis) lenis.scrollTo(top, { duration: 0.9 }); else scrollTo({ top, behavior: RM ? 'auto' : 'smooth' });
+    const r = el.getBoundingClientRect();
+    if (Math.abs(r.top) < 140 && offset < 0 && r.top > 60) return;
+    scrollTo({ top: r.top + scrollY + offset, behavior: RM ? 'auto' : 'smooth' });
   }
   document.addEventListener('click', e => {
     const a = e.target.closest('a[href*="#"]'); if (!a) return;
@@ -299,219 +272,237 @@
     if (u.pathname !== location.pathname || !u.hash) return;
     const el = document.getElementById(decodeURIComponent(u.hash.slice(1))); if (!el) return;
     e.preventDefault(); history.pushState(null, '', u.hash); scrollToEl(el, -100);
-    if (menu && menu.classList.contains('open')) setMenu(false);
+    if (el.id === 'check') { const d = $('#k-date'); d && setTimeout(() => d.focus({ preventScroll: true }), 500); }
   });
 
-  if (RM || !window.gsap || !window.ScrollTrigger) { $$('.stage .layer').forEach(l => { l.style.transform = 'none'; }); return; }
+  /* ---------- reel wall: two rows drift opposite ways, speed up + lean when you scroll ---------- */
+  const rows = $$('[data-reel-row]');
+  if (rows.length === 2) {
+    const [A, B] = rows; let xa = 0, xb = 0, boost = 0, skew = 0, on = false, wA = 0, wB = 0;
+    const measure = () => { wA = A.scrollWidth / 3; wB = B.scrollWidth / 3; }; measure(); addEventListener('resize', measure); addEventListener('load', measure);
+    const loop = () => {
+      if (on) {
+        const sp = RM ? 0 : .55 + boost;
+        xa -= sp; xb += sp; if (-xa > wA) xa += wA; if (xb > 0) xb -= wB;
+        A.style.transform = `translate3d(${xa.toFixed(1)}px,0,0) skewX(${skew.toFixed(2)}deg)`; B.style.transform = `translate3d(${(xb - wB).toFixed(1)}px,0,0) skewX(${(-skew).toFixed(2)}deg)`;
+        boost *= .92; skew *= .9;
+      }
+      requestAnimationFrame(loop);
+    };
+    new IntersectionObserver(([e]) => { on = e.isIntersecting; }).observe(A.parentElement);
+    requestAnimationFrame(loop);
+    let ly = scrollY;
+    const SKEW = !matchMedia('(max-width:760px)').matches;
+    addEventListener('scroll', () => { if (!on) return; const d = scrollY - ly; ly = scrollY; if (RM) return; boost = Math.min(14, Math.abs(d) * .25); if (SKEW) skew = Math.max(-8, Math.min(8, d * .12)); }, { passive: true });
+    const rv = $$('.reel video');
+    // Phones: only the top row plays (the bottom row shows posters) so older phones stay smooth.
+    const SMALL = matchMedia('(max-width:760px)').matches || (navigator.hardwareConcurrency || 8) <= 4;
+    const io = new IntersectionObserver(es => es.forEach(e => { const v = e.target;
+      if (e.isIntersecting && !RM) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else if (!v.paused) v.pause(); }), { rootMargin: SMALL ? '0px' : '0px 200px', threshold: SMALL ? .5 : 0 });
+    rv.forEach(v => { if (!(SMALL && v.closest('[data-reel-row="B"]'))) io.observe(v); });
+    $$('.reel .snd').forEach(b => b.addEventListener('click', () => {
+      const v = b.parentNode.querySelector('video'); const turnOn = v.muted;
+      rv.forEach(o => { o.muted = true; const ob = o.parentNode.querySelector('.snd'); ob.setAttribute('aria-pressed', 'false'); ob.setAttribute('aria-label', 'Turn sound on'); });
+      $$('[data-vid] video').forEach(o => { o.muted = true; });
+      v.muted = !turnOn; b.setAttribute('aria-pressed', String(turnOn)); b.setAttribute('aria-label', turnOn ? 'Turn sound off' : 'Turn sound on');
+      if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); if (turnOn) track('video_sound_on');
+    }));
+  }
+
+  /* ---------- Watch Kiko: a curved, endless ring of videos. The front one plays. ---------- */
+  const vs = $('[data-vs]');
+  if (vs) {
+    const ring = $('[data-vs-track]', vs), slides = $$('[data-vs-slide]', vs), dots = $$('[data-vs-dots] button', vs), n = slides.length;
+    let pos = 0, target = 0, cur = -1, seen = false, running = false, drag = null;
+    const STEP = 32 * Math.PI / 180;                       // angle between neighbours
+    const wrap = d => ((d % n) + n + n / 2) % n - n / 2;  // -n/2 .. n/2
+    const vidOf = s => $('video', s);
+    const playCur = () => slides.forEach((s, k) => { const v = vidOf(s);
+      if (k === cur && seen && !RM) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else if (!v.paused) v.pause(); });
+    const layout = () => {
+      const sw = slides[0].offsetWidth, R = sw * 1.75;
+      slides.forEach((s, k) => {
+        const d = wrap(k - pos), a = d * STEP, ad = Math.abs(d);
+        const x = Math.sin(a) * R, z = (Math.cos(a) - 1) * R;
+        s.style.transform = `translate3d(${x.toFixed(1)}px,${(ad * 10).toFixed(1)}px,${z.toFixed(1)}px) rotateY(${(-a * 180 / Math.PI).toFixed(2)}deg)`;
+        s.style.opacity = ad > 2.4 ? 0 : 1; s.style.zIndex = 100 - Math.round(ad * 10);
+        s.style.setProperty('--dim', Math.min(.6, ad * .38).toFixed(2));
+      });
+      const c = ((Math.round(pos) % n) + n) % n;
+      if (c !== cur) { cur = c; slides.forEach((s, k) => s.classList.toggle('on', k === c)); dots.forEach((d, k) => d.setAttribute('aria-current', String(k === c))); playCur(); }
+    };
+    const tick = () => {
+      if (!drag) pos += (target - pos) * (RM ? 1 : .14);
+      layout();
+      if (drag || Math.abs(target - pos) > .001) requestAnimationFrame(tick); else { pos = target; layout(); running = false; }
+    };
+    const kick = () => { if (!running) { running = true; requestAnimationFrame(tick); } };
+    const go = step => { target = Math.round(target) + step; kick(); track('watch_slide'); };
+    $('[data-vs-prev]') && $('[data-vs-prev]').addEventListener('click', () => go(-1));
+    $('[data-vs-next]') && $('[data-vs-next]').addEventListener('click', () => go(1));
+    dots.forEach((d, k) => d.addEventListener('click', () => go(wrap(k - target))));
+    ring.addEventListener('pointerdown', e => {
+      if (e.target.closest('.snd')) return;
+      drag = { x: e.clientX, y: e.clientY, p: pos, moved: false, id: e.pointerId };
+    });
+    addEventListener('pointermove', e => { if (!drag) return;
+      const dx = e.clientX - drag.x;
+      if (!drag.moved && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(e.clientY - drag.y)) { drag.moved = true; try { ring.setPointerCapture(drag.id); } catch (er) {} }
+      if (drag.moved) { pos = drag.p - dx / (slides[0].offsetWidth * 1.1); target = pos; kick(); } }, { passive: true });
+    const end = e => { if (!drag) return; const d = drag; drag = null;
+      if (d.moved) { const v = (pos - d.p); target = Math.round(pos + Math.sign(v) * .25); kick(); return; }
+      const s = e.target.closest && e.target.closest('[data-vs-slide]'); if (!s) return;
+      const k = slides.indexOf(s);
+      if (k === cur) { const v = vidOf(s); v.paused ? v.play().catch(() => {}) : v.pause(); } else go(wrap(k - target)); };
+    addEventListener('pointerup', end); addEventListener('pointercancel', () => { drag = null; target = Math.round(pos); kick(); });
+    ring.tabIndex = 0; ring.setAttribute('aria-label', 'Kiko videos. Use the left and right arrow keys.');
+    ring.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { e.preventDefault(); go(1); } if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); } });
+    new IntersectionObserver(([e]) => { seen = e.isIntersecting; playCur(); }, { threshold: .35 }).observe(ring);
+    addEventListener('resize', layout);
+    $$('.snd', vs).forEach(b => b.addEventListener('click', () => {
+      const v = b.closest('.vs-frame').querySelector('video'); const turnOn = v.muted;
+      $$('video').forEach(o => { o.muted = true; }); $$('.snd').forEach(o => { o.setAttribute('aria-pressed', 'false'); o.setAttribute('aria-label', 'Turn sound on'); });
+      v.muted = !turnOn; b.setAttribute('aria-pressed', String(turnOn)); b.setAttribute('aria-label', turnOn ? 'Turn sound off' : 'Turn sound on');
+      if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); if (turnOn) track('video_sound_on'); }));
+    layout();
+  }
+
+  /* ---------- Dress up Kiko: tap or drag stickers onto the real Kiko, then save a photo ---------- */
+  const dress = $('[data-dress]');
+  if (dress) {
+    const fig = $('[data-dress-fig]', dress), layer = $('[data-dress-layer]', dress), hint = $('[data-dress-hint]', dress);
+    const cta = $('[data-dress-cta]'), tray = $$('[data-sticker]', dress), kikoImg = $('img', fig);
+    const SLOT = { hat: 'head', crown: 'head', grad: 'head', sunnies: 'eyes', bow: 'neck', scarf: 'neck', balloon: 'hand' };
+    const bounce = () => { if (!RM && window.gsap) gsap.timeline().to(kikoImg, { scaleY: .94, scaleX: 1.04, transformOrigin: '50% 100%', duration: .1 }).to(kikoImg, { scaleY: 1, scaleX: 1, duration: .6, ease: 'elastic.out(1.2,.4)' }); };
+    const setCta = btn => { if (!cta) return; if (!btn) { cta.hidden = true; return; }
+      cta.innerHTML = btn.dataset.cta + ' <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+      cta.href = btn.dataset.href; cta.hidden = false; };
+    const placedFor = name => $(`.placed[data-name="${name}"]`, layer);
+    const sync = () => { tray.forEach(b => b.setAttribute('aria-pressed', String(!!placedFor(b.dataset.sticker))));
+      const last = $$('.placed', layer).pop(); setCta(last ? tray.find(b => b.dataset.sticker === last.dataset.name) : null); };
+    const removeSlot = name => $$('.placed', layer).forEach(p => { if (p.dataset.name !== name && SLOT[p.dataset.name] === SLOT[name]) p.remove(); });
+    const place = (btn, x, y, fly) => {
+      const name = btn.dataset.sticker; let el = placedFor(name);
+      removeSlot(name);
+      if (!el) { el = document.createElement('div'); el.className = 'placed'; el.dataset.name = name; el.innerHTML = btn.innerHTML; el.setAttribute('aria-label', btn.getAttribute('aria-label')); layer.appendChild(el); makeDraggable(el); }
+      el.style.width = (+btn.dataset.w * 100) + '%'; el.style.setProperty('--rot', (btn.dataset.rot || 0) + 'deg');
+      el.style.left = (x * 100) + '%'; el.style.top = (y * 100) + '%';
+      layer.appendChild(el);
+      if (fly && !RM && window.gsap) { const br = btn.getBoundingClientRect(), er = el.getBoundingClientRect();
+        gsap.from(el, { x: br.left + br.width / 2 - (er.left + er.width / 2), y: br.top + br.height / 2 - (er.top + er.height / 2), scale: .35, duration: .55, ease: 'back.out(1.6)', onComplete: bounce }); }
+      else bounce();
+      if (hint) hint.style.opacity = 0; sync(); track('dress_up', { sticker: name });
+    };
+    const toFig = (cx, cy) => { const r = fig.getBoundingClientRect(); return [(cx - r.left) / r.width, (cy - r.top) / r.height]; };
+    const inStage = (cx, cy) => { const r = dress.getBoundingClientRect(); return cx > r.left && cx < r.right && cy > r.top && cy < r.bottom - 70; };
+    function makeDraggable(el) {
+      el.addEventListener('pointerdown', e => {
+        e.preventDefault(); el.setPointerCapture(e.pointerId); const r = el.getBoundingClientRect();
+        const ox = e.clientX - (r.left + r.width / 2), oy = e.clientY - (r.top + r.height / 2);
+        const move = ev => { const [x, y] = toFig(ev.clientX - ox, ev.clientY - oy); el.style.left = x * 100 + '%'; el.style.top = y * 100 + '%'; };
+        const up = ev => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up);
+          if (!inStage(ev.clientX, ev.clientY)) { el.remove(); sync(); } else bounce(); };
+        el.addEventListener('pointermove', move); el.addEventListener('pointerup', up);
+      });
+    }
+    tray.forEach(btn => {
+      btn.addEventListener('pointerdown', e => {
+        if (e.button) return; const sx = e.clientX, sy = e.clientY; let ghost = null;
+        const move = ev => {
+          if (!ghost && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return;
+          if (!ghost) { ghost = document.createElement('div'); ghost.className = 'drag-ghost'; ghost.innerHTML = btn.innerHTML;
+            ghost.style.width = fig.getBoundingClientRect().width * btn.dataset.w + 'px'; document.body.appendChild(ghost); }
+          ghost.style.left = ev.clientX + 'px'; ghost.style.top = ev.clientY + 'px';
+        };
+        const up = ev => { removeEventListener('pointermove', move); removeEventListener('pointerup', up);
+          if (ghost) { ghost.remove(); if (inStage(ev.clientX, ev.clientY)) { const [x, y] = toFig(ev.clientX, ev.clientY); place(btn, x, y, false); } btn._dragged = true; } };
+        addEventListener('pointermove', move); addEventListener('pointerup', up);
+      });
+      btn.addEventListener('click', () => {
+        if (btn._dragged) { btn._dragged = false; return; }
+        const p = placedFor(btn.dataset.sticker); if (p) { p.remove(); sync(); return; }
+        place(btn, +btn.dataset.x, +btn.dataset.y, true);
+      });
+    });
+    const clear = () => { $$('.placed', layer).forEach(p => p.remove()); sync(); };
+    $('[data-dress-clear]') && $('[data-dress-clear]').addEventListener('click', clear);
+    $('[data-dress-random]') && $('[data-dress-random]').addEventListener('click', () => {
+      clear(); const bySlot = {}; tray.forEach(b => (bySlot[SLOT[b.dataset.sticker]] = bySlot[SLOT[b.dataset.sticker]] || []).push(b));
+      Object.values(bySlot).forEach((list, i) => { if (Math.random() < .75 || i === 0) { const b = list[Math.floor(Math.random() * list.length)]; setTimeout(() => place(b, +b.dataset.x, +b.dataset.y, true), i * 160); } });
+    });
+    const saveBtn = $('[data-dress-save]');
+    saveBtn && saveBtn.addEventListener('click', async () => {
+      const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+      const load = src => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = src; });
+      try {
+        await (document.fonts && document.fonts.load('80px "Titan One"'));
+        g.fillStyle = '#FFC21A'; g.fillRect(0, 0, W, H);
+        g.fillStyle = '#FFD95E'; g.beginPath(); g.arc(W / 2, H * .5, W * .4, 0, 7); g.fill();
+        const fr = fig.getBoundingClientRect(), fh = H * .82, fw = fh * fr.width / fr.height, fx = (W - fw) / 2, fy = H - fh - 40, s = fh / fr.height;
+        const k = await load(kikoImg.currentSrc || kikoImg.src);
+        const kr = k.naturalWidth / k.naturalHeight, kw = Math.min(fw, fh * kr), kh = kw / kr;
+        g.drawImage(k, fx + (fw - kw) / 2, fy + fh - kh, kw, kh);
+        for (const p of $$('.placed', layer)) {
+          const svg = $('svg', p).cloneNode(true); svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          const vb = svg.viewBox.baseVal, pr = p.getBoundingClientRect(), w = p.offsetWidth * s, h = w * vb.height / vb.width;
+          const im = await load('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.outerHTML));
+          const cx = fx + (pr.left + pr.width / 2 - fr.left) * s, cy = fy + (pr.top + pr.height / 2 - fr.top) * s;
+          g.save(); g.translate(cx, cy); g.rotate((parseFloat(p.style.getPropertyValue('--rot')) || 0) * Math.PI / 180); g.drawImage(im, -w / 2, -h / 2, w, h); g.restore();
+        }
+        g.font = '64px "Titan One", sans-serif'; g.textAlign = 'center'; g.lineJoin = 'round';
+        g.lineWidth = 12; g.strokeStyle = '#141414'; g.fillStyle = '#fff';
+        g.strokeText('I dressed up Kiko!', W / 2, 110); g.fillText('I dressed up Kiko!', W / 2, 110);
+        g.font = '800 30px Figtree, sans-serif'; g.fillStyle = '#141414'; g.fillText('kikothekasadragon.com', W / 2, H - 22);
+        const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+        const file = new File([blob], 'kiko-dressed-up.png', { type: 'image/png' });
+        track('dress_save');
+        if (navigator.canShare && navigator.canShare({ files: [file] }) && matchMedia('(pointer:coarse)').matches) { await navigator.share({ files: [file], title: 'I dressed up Kiko!' }).catch(() => {}); return; }
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'kiko-dressed-up.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      } catch (err) { saveBtn.lastChild.textContent = ' Try again'; }
+    });
+  }
+
+  if (RM || !window.gsap || !window.ScrollTrigger) return;
   gsap.registerPlugin(ScrollTrigger);
 
-  if (window.Lenis) {
-    lenis = new Lenis({ lerp: 0.11, smoothWheel: true });
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add(time => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
-    if (location.hash) { const el = document.getElementById(location.hash.slice(1)); if (el) setTimeout(() => lenis.scrollTo(el, { offset: -100, immediate: true }), 60); }
-  }
-
-  /* hero stage: entrance, scroll pop-out, pointer depth */
-  $$('[data-stage]').forEach(stage => {
-    const frame = $('[data-frame]', stage);
-    const layers = $$('.layer', frame);
-    const pop = $('[data-kiko]', stage);
-    const body = pop && $('[data-kiko-body]', pop);
-    const tilt = pop && $('[data-tilt]', pop);
-    const shadow = pop && $('[data-shadow]', pop);
-    const copy = $('[data-hero-copy]', stage);
-    const isHome = stage.hasAttribute('data-hero-home');
-
-    // one orchestrated entrance: the scene settles, Kiko bounds up out of it
-    const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
-    intro.fromTo(layers, { scale: 1.08 }, { scale: 1, duration: 1.4, stagger: 0.04 }, 0)
-      .from(copy ? copy.children : [], { y: 30, opacity: 0, duration: .8, stagger: .08 }, .15);
-    if (tilt) intro.from(tilt, { yPercent: 38, scale: .78, rotation: 7, opacity: 0, duration: 1.1, ease: 'back.out(1.6)' }, .25);
-    if (isHome && pop) intro.add(() => sayHi(pop, 'G’day! I’m Kiko!'), 1.3);
-    if (pop) intro.add(() => waveHand($('[data-wave]', pop)), 1.1);
-
-    // scroll: frame tips back, layers drift at their depth, Kiko comes forward out of the screen
-    const mm = gsap.matchMedia();
-    mm.add({ big: '(min-width: 901px)', small: '(max-width: 900px)' }, ctx => {
-      const big = ctx.conditions.big;
-      const tl = gsap.timeline({ scrollTrigger: { trigger: stage, start: 'top top', end: 'bottom top', scrub: 0.6 } });
-      if (big) tl.to(frame, { rotationX: 9, scale: .95, y: 30, ease: 'none' }, 0);
-      layers.forEach(l => tl.to(l, { yPercent: (parseFloat(l.dataset.depth) || 0) * (big ? 16 : 10), ease: 'none' }, 0));
-      if (body) tl.to(body, { scale: big ? 1.2 : 1.1, yPercent: big ? -10 : -4, xPercent: big ? -6 : 0, rotation: -3, ease: 'none' }, 0);
-      if (copy && big) tl.to(copy, { yPercent: -18, ease: 'none' }, 0);
-    });
-
-    // pointer anywhere on the page: Kiko turns toward you, the world shifts behind him
-    if (FINE && tilt) {
-      const rx = gsap.quickTo(tilt, 'rotationX', { duration: .7, ease: 'power3' });
-      const ry = gsap.quickTo(tilt, 'rotationY', { duration: .7, ease: 'power3' });
-      const sx = shadow ? gsap.quickTo(shadow, 'x', { duration: .7 }) : null;
-      gsap.set(tilt, { transformPerspective: 900 });
-      const lx = layers.map(l => gsap.quickTo(l, 'x', { duration: 1.1, ease: 'power3' }));
-      let onScreen = true;
-      new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; }).observe(stage);
-      addEventListener('pointermove', e => {
-        if (!onScreen) return;
-        const r = tilt.getBoundingClientRect();
-        const cx = r.left + r.width / 2, cy = r.top + r.height * .35;
-        const px = gsap.utils.clamp(-1, 1, (e.clientX - cx) / (innerWidth * .5));
-        const py = gsap.utils.clamp(-1, 1, (e.clientY - cy) / (innerHeight * .6));
-        ry(px * 16); rx(-py * 9); sx && sx(-px * 26);
-        const sp = e.clientX / innerWidth - .5;
-        layers.forEach((l, k) => lx[k](-sp * (parseFloat(l.dataset.depth) || 0) * 60));
-      }, { passive: true });
-      document.documentElement.addEventListener('pointerleave', () => { rx(0); ry(0); sx && sx(0); lx.forEach(f => f(0)); });
+  /* ---------- hero boxes: entrance + Kiko turns toward your pointer ---------- */
+  $$('[data-hero-box]').forEach(box => {
+    const kiko = $('[data-hero-kiko]', box), word = $('[data-word]', box), floats = $$('.float', box);
+    if (kiko) gsap.from(kiko, { yPercent: 30, opacity: 0, duration: 1.1, ease: 'back.out(1.4)', delay: .15 });
+    if (word) gsap.from(word, { yPercent: -40, opacity: 0, duration: 1, ease: 'expo.out' });
+    gsap.from($$('.hero-copy > *, .hero-side > *, .ph-copy > *', box), { y: 30, opacity: 0, stagger: .08, duration: .7, ease: 'back.out(2)', delay: .45 });
+    gsap.from(floats, { scale: 0, rotate: -60, stagger: .1, duration: .8, ease: 'back.out(2.5)', delay: .7 });
+    gsap.to($$('.float svg', box), { y: -10, rotate: 8, yoyo: true, repeat: -1, duration: 2.2, ease: 'sine.inOut', stagger: .4 });
+    if (!kiko) return;
+    gsap.set(kiko, { transformPerspective: 1200 });
+    const kx = gsap.quickTo(kiko, 'rotationY', { duration: .6, ease: 'power3' }), ky = gsap.quickTo(kiko, 'rotationX', { duration: .6, ease: 'power3' });
+    const wx = word ? gsap.quickTo(word, 'x', { duration: .9, ease: 'power3' }) : () => {};
+    const fl = floats.map(f => ({ d: +f.dataset.depth || 20, x: gsap.quickTo(f, 'x', { duration: .8 }), y: gsap.quickTo(f, 'y', { duration: .8 }) }));
+    if (FINE) {
+      box.addEventListener('pointermove', e => { const r = box.getBoundingClientRect(), nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5;
+        kx(nx * 18); ky(-ny * 8); wx(-nx * 60); fl.forEach(f => { f.x(nx * f.d); f.y(ny * f.d); }); });
+      box.addEventListener('pointerleave', () => { kx(0); ky(0); wx(0); fl.forEach(f => { f.x(0); f.y(0); }); });
+    } else if (window.DeviceOrientationEvent && !DeviceOrientationEvent.requestPermission) {
+      addEventListener('deviceorientation', e => { if (e.gamma == null) return; const nx = Math.max(-1, Math.min(1, e.gamma / 30)) / 2; kx(nx * 18); wx(-nx * 50); fl.forEach(f => f.x(nx * f.d)); }, { passive: true });
     }
+    gsap.to(kiko, { yPercent: 10, ease: 'none', scrollTrigger: { trigger: box, start: 'top top', end: 'bottom top', scrub: true } });
   });
 
-  /* ---------- alive: breathing, blinking, petting, scroll squash ---------- */
-  $$('[data-breath]').forEach((b, i) => {
-    gsap.to(b, { scaleY: 1.035, scaleX: .985, y: -7, duration: 1.6 + i * .15, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+  /* headings and tiles pop in */
+  $$('.sec-h h2, .dress h2, .faqs h2, .panel h3, .kasa h2, main h2:not(.sec-h h2)').forEach(h => {
+    if (h.closest('[data-hero-box]')) return;
+    gsap.from(h, { y: 44, rotate: -2, opacity: 0, duration: .8, ease: 'back.out(1.8)', scrollTrigger: { trigger: h, start: 'top 90%' } });
   });
-  const blink = scope => {
-    const l = $$('[data-lid]', scope); if (!l.length) return;
-    const tl = gsap.timeline();
-    tl.to(l, { scaleY: 1, duration: .075, ease: 'power2.in' }).to(l, { scaleY: 0, duration: .11, ease: 'power2.out', delay: .05 });
-    if (Math.random() < .25) tl.to(l, { scaleY: 1, duration: .07, delay: .12 }).to(l, { scaleY: 0, duration: .1 });
-  };
-  const blinkLoop = () => {
-    $$('[data-kiko], [data-react]').forEach(k => { const r = k.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight) blink(k); });
-    setTimeout(blinkLoop, 2600 + Math.random() * 3200);
-  };
-  setTimeout(blinkLoop, 2200);
+  $$('.tile, .cards .card').forEach((t, i) => gsap.from(t, { y: 60, rotate: i % 2 ? 2.5 : -2.5, opacity: 0, duration: .8, ease: 'back.out(1.6)', scrollTrigger: { trigger: t, start: 'top 94%' } }));
+  $$('.kiko-side img, .panel .sticker').forEach(k => gsap.from(k, { yPercent: 40, rotate: 8, duration: 1, ease: 'back.out(1.6)', scrollTrigger: { trigger: k.parentElement, start: 'top 80%' } }));
 
-  /* eyes follow the pointer; without a mouse they glance around on their own */
-  const eyes = $$('[data-eye]').map(e => {
-    const iris = $('[data-iris]', e);
-    return { e, x: gsap.quickTo(iris, 'x', { duration: .35, ease: 'power3' }), y: gsap.quickTo(iris, 'y', { duration: .35, ease: 'power3' }) };
-  });
-  let lastPointer = 0;
-  const look = (tx, ty) => eyes.forEach(o => {
-    const r = o.e.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    const dx = tx - cx, dy = ty - cy, d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 260);
-    // which way is the art flipped? (a mirrored wrapper inverts x)
-    const flip = o.flip ?? (o.flip = !!o.e.closest('[style*="scaleX(-1)"]'));
-    o.x((flip ? -1 : 1) * dx / d * k * r.width * .17); o.y(dy / d * k * r.height * .14);
-  });
-  addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { lastPointer = Date.now(); look(e.clientX, e.clientY); } }, { passive: true });
-  const glance = () => {
-    if (Date.now() - lastPointer > 2500) look(innerWidth * Math.random(), innerHeight * (.2 + Math.random() * .6));
-    setTimeout(glance, 1400 + Math.random() * 2200);
-  };
-  setTimeout(glance, 1800);
-
-  /* idle life: every few seconds Kiko does a little something */
-  const idle = () => {
-    $$('[data-kiko], [data-react]').forEach(pop => {
-      const r = pop.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight || r.height < 20) return;
-      const t = pop.matches('[data-react]') ? pop : $('[data-tilt]', pop), n = Math.random(), hand = $('[data-wave]', pop);
-      if (hand && n < .5) waveHand(hand);
-      else if (n < .35) gsap.timeline().to(t, { rotation: -4, duration: .35, ease: 'sine.inOut' }).to(t, { rotation: 3, duration: .45, ease: 'sine.inOut' }).to(t, { rotation: 0, duration: .5, ease: 'sine.out' });
-      else if (n < .6) hop(t);
-      else if (n < .8) blink(pop);
-    });
-    setTimeout(idle, 4500 + Math.random() * 4000);
-  };
-  setTimeout(idle, 5000);
-
-  /* Kiko gets excited when you go near a booking button */
-  let lastCheer = 0;
-  document.addEventListener('pointerover', e => {
-    const a = e.target.closest('a[href*="/book"]'); if (!a || Date.now() - lastCheer < 6000) return;
-    const pop = $$('[data-kiko], [data-react]').find(p => { const r = p.getBoundingClientRect(); return r.bottom > 40 && r.top < innerHeight - 40 && r.height > 20; });
-    if (!pop) return; lastCheer = Date.now();
-    sayHi(pop, ['Yes! Book me!', 'Ooh, pick me!', 'I’m ready when you are!'][Math.random() * 3 | 0]); hop(pop.matches('[data-react]') ? pop : $('[data-tilt]', pop));
-  });
-
-  const HEART = '<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.4 5 7 5c2 0 3.3 1 5 3 1.7-2 3-3 5-3 3.6 0 5.8 3.6 4.5 6.8C19.5 16.4 12 21 12 21z"/></svg>';
-  const heart = (x, y) => {
-    const h = document.createElement('span'); h.className = 'heart-pop'; h.innerHTML = HEART;
-    h.style.left = x + 'px'; h.style.top = y + 'px';
-    h.style.color = ['#d92e6c', '#ff8a1e', '#ffcf3a', '#5fa420'][Math.random() * 4 | 0];
-    document.body.appendChild(h);
-    gsap.fromTo(h, { scale: .3, opacity: 1, rotation: gsap.utils.random(-30, 30) },
-      { y: gsap.utils.random(-90, -50), x: gsap.utils.random(-30, 30), scale: gsap.utils.random(.8, 1.3), opacity: 0, duration: 1.1, ease: 'power2.out', onComplete: () => h.remove() });
-  };
-  const pettable = (scope, hoverEl, bounceEl, isHero) => {
-    let dist = 0, last = null, lastHeart = 0, tickled = 0, greeted = false;
-    hoverEl.addEventListener('pointerenter', e => {
-      if (e.pointerType !== 'mouse') return;
-      gsap.to(bounceEl, { scale: 1.045, duration: .35, ease: 'back.out(3)' }); waveHand($('[data-wave]', scope));
-      if (!greeted) { greeted = true; sayHi(scope, ['Ooh, hello there!', 'Hi hi!', 'You found me!'][Math.random() * 3 | 0]); }
-    });
-    hoverEl.addEventListener('pointerleave', () => { gsap.to(bounceEl, { scale: 1, duration: .5 }); last = null; dist = 0; });
-    hoverEl.addEventListener('pointermove', e => {
-      if (e.pointerType !== 'mouse') return;
-      if (last) dist += Math.hypot(e.clientX - last[0], e.clientY - last[1]);
-      last = [e.clientX, e.clientY];
-      if (dist - lastHeart > 70) { lastHeart = dist; heart(e.clientX, e.clientY); }
-      if (dist > 900 && Date.now() - tickled > 4000) {
-        tickled = Date.now(); dist = 0; lastHeart = 0;
-        sayHi(scope, ['Hehe, that tickles!', 'Soft, right? Pure dragon fluff.', 'Okay okay, one more pat!'][Math.random() * 3 | 0]);
-        gsap.fromTo(bounceEl, { rotation: -6 }, { rotation: 0, duration: .9, ease: 'elastic.out(1.2, .25)' });
-        blink(scope);
-      }
-    });
-    hoverEl.addEventListener('click', e => {
-      blink(scope);
-      if (!isHero) { sayHi(scope); hop(bounceEl); waveHand($('[data-wave]', scope)); track('kiko_hi'); for (let i = 0; i < 5; i++) setTimeout(() => heart(e.clientX + (Math.random() - .5) * 40, e.clientY), i * 60); }
-    });
-  };
-  $$('[data-kiko]').forEach(pop => pettable(pop, $('[data-kiko-body]', pop), $('[data-tilt]', pop), true));
-  $$('[data-react]').forEach(el => pettable(el, el, el, false));
-
-  if (lenis) {
-    const squash = $$('[data-kiko-body]').map(b => gsap.quickTo(b, 'skewY', { duration: .5, ease: 'power3' }));
-    lenis.on('scroll', ({ velocity }) => { const v = gsap.utils.clamp(-5, 5, velocity * .18); squash.forEach(f => f(v)); });
+  /* photoshoot: the stack fans out as you scroll */
+  const fan = $('[data-fan]');
+  if (fan) {
+    const cards = $$('.shot', fan), n = cards.length, mob = matchMedia('(max-width:700px)').matches, spread = mob ? 46 : 170;
+    gsap.set(cards, { rotate: i => (i - 2) * 2, y: i => i * -4 });
+    gsap.timeline({ scrollTrigger: { trigger: fan, start: 'top 75%', end: 'center 45%', scrub: 1 } })
+      .to(cards, { x: i => (i - (n - 1) / 2) * spread, rotate: i => (i - (n - 1) / 2) * (mob ? 5 : 7), y: i => Math.abs(i - (n - 1) / 2) * (mob ? 14 : 26), ease: 'none' });
+    cards.forEach(c => { c.addEventListener('pointerenter', () => gsap.to(c, { scale: 1.06, zIndex: 5, duration: .3 })); c.addEventListener('pointerleave', () => gsap.to(c, { scale: 1, zIndex: 0, duration: .3 })); });
   }
-
-  /* Kiko peeks over the form and rests a hand on its edge */
-  $$('[data-peekwrap]').forEach(w => {
-    const parts = $$('.po', w);
-    gsap.fromTo(parts, { yPercent: 38, rotation: 4 }, { yPercent: 0, rotation: 0, ease: 'none', scrollTrigger: { trigger: w, start: 'top 95%', end: 'top 45%', scrub: 0.6 } });
-  });
-
-  /* he waves along as you scroll */
-  const hands = $$('[data-wave]').map(h => ({ h, r: gsap.quickTo(h, 'rotation', { duration: .25, ease: 'sine.out' }) }));
-  let waveRest;
-  addEventListener('scroll', () => {
-    const y = scrollY;
-    hands.forEach(o => { const b = o.h.getBoundingClientRect(); if (b.bottom > 0 && b.top < innerHeight && !o.h._waving) o.r(Math.sin(y / 70) * 17); });
-    clearTimeout(waveRest); waveRest = setTimeout(() => hands.forEach(o => { if (!o.h._waving) o.r(0); }), 260);
-  }, { passive: true });
-
-  /* Meet Kiko: he climbs up out of the portal as you scroll */
-  $$('[data-portal]').forEach(p => {
-    const img = $('[data-riser]', p);
-    gsap.set(img, { xPercent: -50, x: 0 });
-    gsap.fromTo(img, { yPercent: 62 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: p, start: 'top 92%', end: 'top 32%', scrub: 0.6 } });
-    const live = $('[data-react]', p);
-    if (live) ScrollTrigger.create({ trigger: p, start: 'top 40%', once: true, onEnter: () => { sayHi(live, 'Hi, I’m Kiko!'); waveHand($('[data-wave]', live)); } });
-  });
-
-  /* adventure postcard drifts inside its frame */
-  $$('[data-parallax-img] img').forEach(img => {
-    gsap.fromTo(img, { yPercent: -12 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } });
-  });
-
-  /* signposts swing into place */
-  $$('[data-signs]').forEach(s => {
-    gsap.from($$('.sign', s), { rotation: i => (i % 2 ? 24 : -24), x: i => (i % 2 ? 40 : -40), opacity: 0, duration: .9, ease: 'back.out(2)', stagger: .08,
-      scrollTrigger: { trigger: s, start: 'top 82%', once: true }, clearProps: 'transform,opacity' });
-  });
-
-  /* sunset: Kiko rises over the horizon */
-  $$('[data-rise]').forEach(img => {
-    gsap.set(img, { xPercent: -50, x: 0 });
-    gsap.fromTo(img, { yPercent: 55 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: img.closest('section'), start: 'top 75%', end: 'bottom bottom', scrub: 0.6 } });
-  });
-  /* call-to-action Kiko pops up over the panel edge */
-  $$('.cta-panel .kiko-side').forEach(img => {
-    gsap.fromTo(img, { yPercent: 30, rotation: 6 }, { yPercent: 0, rotation: 0, ease: 'none', scrollTrigger: { trigger: img.closest('.cta-panel'), start: 'top 90%', end: 'center 55%', scrub: 0.6 } });
-  });
-
-  addEventListener('load', () => ScrollTrigger.refresh());
 })();

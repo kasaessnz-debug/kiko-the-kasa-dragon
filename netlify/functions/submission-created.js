@@ -26,8 +26,18 @@ export const handler = async (event) => {
     const { payload } = JSON.parse(event.body || "{}");
     if (!payload) return { statusCode: 200, body: "no payload" };
     try { connectLambda(event); } catch (e) { /* local tests */ }
-    const form = payload.form_name;
+    let form = payload.form_name;
     const d = payload.data || {};
+    // The homepage "Got a date?" form (check-date) is a short booking enquiry: date, suburb, email.
+    // It is saved and emailed as a booking so it shows in Kiko HQ like any other enquiry.
+    const quick = form === "check-date";
+    if (quick) {
+      form = "booking";
+      d.event_type = d.event_type || "Quick date check (homepage)";
+      d.event_date = d.event_date || d.date || "";
+      d.venue_suburb = d.venue_suburb || d.suburb || "";
+      delete d.date; delete d.suburb;
+    }
     const site = process.env.URL || "https://kikothekasadragon.com";
     const notify = process.env.KIKO_NOTIFY_EMAIL;
     const ref = `KIKO-${1000 + (Number(payload.number) || Math.floor(Date.now() / 1000) % 9000)}`;
@@ -50,7 +60,7 @@ export const handler = async (event) => {
     if (form === "booking") {
       await sendMail({
         to: notify, replyTo: d.email,
-        subject: `New Kiko booking enquiry ${ref} — ${d.event_type || "event"} ${d.event_date || ""} ${d.state || ""}`.trim(),
+        subject: `${quick ? "New Kiko date check" : "New Kiko booking enquiry"} ${ref} — ${d.event_type || "event"} ${d.event_date || ""} ${d.state || ""}`.trim(),
         html: shell(`New booking enquiry · ${ref}`, `<table style="border-collapse:collapse">${rows}</table>
           <p style="margin-top:18px"><b>When you send the quote</b>, include this deposit link (it fills in their details):<br><a href="${depositLink}">${depositLink}</a></p>
           <p style="color:#5b7a6a">Reply to this email to answer ${esc(first || "them")} directly.</p>`),

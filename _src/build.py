@@ -8,10 +8,13 @@ OUT = os.environ.get('KIKO_OUT', os.path.dirname(os.path.dirname(os.path.abspath
 SITE = 'https://kikothekasadragon.com'   # change to the real domain when it's live
 YEAR = datetime.date.today().year
 
-NAV = [('index.html', 'Home'), ('about.html', 'About Kiko'), ('adventures.html', 'Adventures'),
-       ('gives-back.html', 'Kiko Gives Back'), ('book.html', 'Events & Bookings'),
-       ('school-events.html', 'School Events'),
-       ('shop.html', 'Shop'), ('contact.html', 'Contact')]
+NAV = [('about.html', 'About'), ('adventures.html', 'Adventures'), ('school-events.html', 'Schools'),
+       ('gives-back.html', 'Gives Back'), ('gallery.html', 'Gallery'), ('shop.html', 'Shop'), ('contact.html', 'Contact')]
+MENU_BIG = [('index.html', 'Home'), ('about.html', 'About'), ('adventures.html', 'Adventures'), ('school-events.html', 'Schools'),
+            ('gallery.html', 'Gallery'), ('gives-back.html', 'Gives Back'), ('contact.html', 'Contact')]
+MENU_SMALL = [('book.html', 'Events &amp; bookings'), ('shop.html', 'Shop'), ('deposit.html', 'Pay a deposit'), ('terms.html', 'Terms'), ('privacy.html', 'Privacy')]
+ABN = '85 701 229 718'
+ARROW = '<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 
 
 def icon(name, cls='ico'):
@@ -22,7 +25,7 @@ def icon(name, cls='ico'):
 def tokens(html):
     html = re.sub(r'\{\{i:([\w-]+)\}\}', lambda m: icon(m.group(1)), html)
     html = html.replace('{{scene:dusk}}', scene('dusk')).replace('{{scene}}', scene('day'))
-    html = html.replace('{{year}}', str(YEAR)).replace('{{socials}}', social_links()).replace('{{tel}}', f'<a href="tel:{PHONE}">{PHONE_SHOW}</a>')
+    html = html.replace('{{arrow}}', ARROW).replace('{{year}}', str(YEAR)).replace('{{socials}}', social_links()).replace('{{tel}}', f'<a href="tel:{PHONE}">{PHONE_SHOW}</a>')
     html = re.sub(r'\[\[wave:([^\]]+)\]\]', lambda m: wave(m.group(1)), html)
     html = re.sub(r'\[\[wave-b:([^\]]+)\]\]', lambda m: wave(m.group(1), True), html)
     return html
@@ -32,7 +35,7 @@ WAVE = '<svg class="wave{cls}" viewBox="0 0 1440 70" preserveAspectRatio="none" 
 
 
 def wave(color='#fff', bottom=False):
-    return WAVE.replace('{cls}', ' bottom' if bottom else '').replace('class="wave', f'style="color:{color}" class="wave', 1)
+    return ''   # v2 design: sections are separated by ink lines, not waves
 
 
 PHONE = '+61449966222'          # same number as Kasa (Kiko is part of KASA Essentials)
@@ -78,21 +81,20 @@ def head(page):
     graph += page.get('schema', [])
     ld = json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False)
     robots = '<meta name="robots" content="noindex">' if page.get('noindex') else ''
-    pre = {'/assets/img/kiko-wave-900.webp': 'kiko-wave', '/assets/img/kiko-wave-r-900.webp': 'kiko-wave-r', '/assets/img/kiko-open-1400.webp': 'kiko-open'}
-    pk = pre.get(page.get('preload', '/assets/img/kiko-wave-900.webp'), 'kiko-wave')
-    small, big, bw = {'kiko-wave': ('560', '900', '877'), 'kiko-wave-r': ('560', '900', '877'), 'kiko-open': ('760', '1400', '1400')}[pk]
-    if pk == 'kiko-wave': pk = 'kiko-wave-body'
-    preload_tag = f'<link rel="preload" as="image" imagesrcset="/assets/img/{pk}-{small}.webp {small}w, /assets/img/{pk}-{big}.webp {bw}w" imagesizes="(max-width:900px) 78vw, 46vw" fetchpriority="high">'
+    import pages as P
+    ck = P.CUT.get(page.get('hero', 'wave'), 'stand')
+    w7, w14 = P.CUT_W[ck]
+    preload_tag = f'<link rel="preload" as="image" imagesrcset="/assets/img/real/cut-{ck}-700.webp {w7}w, /assets/img/real/cut-{ck}-1400.webp {w14}w" imagesizes="(max-width:560px) 170px, 340px" fetchpriority="high">' if page.get('hero', 'wave') else ''
     return f'''<!doctype html>
 <html lang="en-AU" class="no-js">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{page['title']}</title>
 <meta name="description" content="{page['desc']}">
 {robots}
 <link rel="canonical" href="{url}">
-<meta name="theme-color" content="#13843f">
+<meta name="theme-color" content="#FFC21A">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Kiko — The KASA Dragon">
 <meta property="og:title" content="{page['title']}">
@@ -105,7 +107,7 @@ def head(page):
 <link rel="icon" href="/assets/img/icon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/img/icon-180.png">
 <link rel="manifest" href="/site.webmanifest">
-<link rel="preload" href="/assets/fonts/shantell.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/titan-one.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/figtree.woff2" as="font" type="font/woff2" crossorigin>
 {preload_tag}
 <link rel="stylesheet" href="/assets/css/kiko.css?v={page['v']}">
@@ -118,67 +120,50 @@ def head(page):
 
 
 def header(page):
-    links = ''.join(
-        f'<li><a href="/{clean(f)}"{" aria-current=\"page\"" if f == page["file"] else ""}>{t}</a></li>'
-        for f, t in NAV)
-    mlinks = ''.join(f'<a href="/{clean(f)}">{t}</a>' for f, t in NAV)
+    cur = lambda f: ' aria-current="page"' if f == page['file'] else ''
+    links = ''.join(f'<li><a href="/{clean(f)}"{cur(f)}>{t}</a></li>' for f, t in NAV)
+    big = ''.join(f'<a href="/{clean(f)}"{cur(f)}>{t}</a>' for f, t in MENU_BIG)
+    small = ''.join(f'<a href="/{clean(f)}">{t}</a>' for f, t in MENU_SMALL)
+    cta = '#check' if page['file'] == 'index.html' else '/book#enquire'
     return f'''<header class="site-head" id="top">
-  <nav class="nav wrap" aria-label="Main">
-    <a class="logo" href="/" aria-label="Kiko — The KASA Dragon, home">
-      <img src="/assets/img/kiko-head-360.webp" alt="" width="46" height="46">
-      <span><b>Kiko</b><small>The KASA Dragon</small></span>
-    </a>
+  <nav class="nav" aria-label="Main">
+    <a class="logo" href="/" aria-label="Kiko the KASA Dragon, home"><i aria-hidden="true"></i><span><b>kiko</b><small>by Kasa Essentials</small></span></a>
     <ul class="nav-links">{links}</ul>
-    <a class="btn btn-sm" href="/book#enquire" data-track="nav_book">{icon('calendar-heart')}<span>Book Kiko</span></a>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">{icon('menu')}</button>
+    <a class="btn btn-sm nav-cta" href="{cta}" data-track="nav_book">Book Kiko</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><i></i></button>
   </nav>
 </header>
 <div class="mobile-menu" id="mobile-menu" aria-label="Menu">
-  <button class="menu-btn close" type="button" aria-label="Close menu" style="display:inline-flex">{icon('x')}</button>
-  {mlinks}
-  <a class="btn" href="/book#enquire">{icon('calendar-heart')} Book Kiko</a>
+  <div class="mm-big">{big}</div>
+  <div class="mm-small">{small}</div>
+  <a class="btn btn-ink" href="{cta}" data-track="menu_book">Is Kiko free? {ARROW}</a>
+  <p class="mm-trust">Kiko is created and owned by Kasa Essentials Pty Ltd, ABN {ABN}.</p>
+  <img class="mm-kiko sticker" src="/assets/img/real/cut-thumbs-700.webp" alt="" width="450" height="700" loading="lazy">
 </div>
 '''
 
 
 def footer(page):
-    import pages as P
-    BUDDY_EYES = P.lids('head')
     return f'''<footer class="site-foot">
-  <div class="wrap">
-    <div class="foot-grid">
-      <div>
-        <a class="logo" href="/"><img src="/assets/img/kiko-head-360.webp" alt="" width="46" height="46" loading="lazy"><span><b>Kiko</b><small>The KASA Dragon</small></span></a>
-        <p class="owner">Kiko — The KASA Dragon is created and owned by KASA Essentials Pty Ltd.</p>
-        <a class="kasa-mark" href="https://kasaessentials.com" rel="noopener" aria-label="KASA Essentials"><b>KASA</b><span>ESSENTIALS</span></a>
-      </div>
-      <div>
-        <h4>Explore</h4>
-        <ul><li><a href="/about">About Kiko</a></li><li><a href="/adventures">Kiko’s Adventures</a></li><li><a href="/gives-back">Kiko Gives Back</a></li><li><a href="/gallery">Gallery</a></li></ul>
-      </div>
-      <div>
-        <h4>Work with Kiko</h4>
-        <ul><li><a href="/book">Events &amp; Bookings</a></li><li><a href="/book#deposit">Pay a booking deposit</a></li><li><a href="/contact?reason=Community%20Partnership">Partner with Kiko</a></li><li><a href="/shop">Shop</a></li><li><a href="/contact">Contact</a></li><li><a href="tel:{PHONE}">{PHONE_SHOW}</a></li></ul>
-      </div>
-      <div>
-        <h4>Follow Kiko’s adventures</h4>
-        <div class="socials" data-socials>{social_links()}</div>
-        <p class="foot-tag" style="margin-top:18px">A kinder, brighter Australia.</p>
-      </div>
+  <div class="wrap foot-grid">
+    <div class="fbrand"><b>kiko</b><p>Melbourne’s friendly party dragon. Created and owned by Kasa Essentials Pty Ltd.</p>
+      <div class="socials" data-socials>{social_links()}</div>
+      <a class="kasa-mark" href="https://kasaessentials.com" rel="noopener">A <span>KASA</span> ESSENTIALS BRAND</a>
     </div>
-    <div class="foot-base">
-      <span>© Kiko — The KASA Dragon {YEAR}. All rights reserved.</span>
-      <span><a href="https://kasaessentials.com" rel="noopener">Created by KASA Essentials</a></span>
-      <span><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a> · <a href="/contact">Contact</a></span>
-    </div>
+    <div><h4>Explore</h4><ul><li><a href="/about">About Kiko</a></li><li><a href="/adventures">Adventures</a></li><li><a href="/gallery">Gallery</a></li><li><a href="/gives-back">Kiko Gives Back</a></li><li><a href="/shop">Shop</a></li></ul></div>
+    <div><h4>Book</h4><ul><li><a href="/book">Events &amp; bookings</a></li><li><a href="/school-events">School events</a></li><li><a href="/deposit">Pay a deposit</a></li><li><a href="/contact?reason=Community%20Partnership">Partner with Kiko</a></li></ul></div>
+    <div><h4>Say hello</h4><ul><li><a href="mailto:info@kasaessentials.com">info@kasaessentials.com</a></li><li><a href="tel:{PHONE}">{PHONE_SHOW}</a></li><li><a href="/contact">Contact form</a></li><li>Melbourne, Australia</li></ul></div>
+  </div>
+  <div class="wrap foot-base">
+    <span>© {YEAR} Kiko — The KASA Dragon · Kasa Essentials Pty Ltd · ABN {ABN}</span>
+    <span><a href="https://kasaessentials.com" rel="noopener">Created by KASA Essentials</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></span>
   </div>
 </footer>
-<a class="buddy" href="/book#enquire" data-buddy aria-label="Book Kiko for your event" data-track="buddy_book"><span class="buddy-bubble">Want me at your event?</span><span class="kiko-art buddy-art"><img src="/assets/img/kiko-head-360.webp" alt="" width="360" height="360" loading="lazy">{BUDDY_EYES}</span></a>
-<div class="book-bar" aria-hidden="true"><a class="btn" href="/book#enquire" tabindex="-1" data-track="bar_book">{icon('calendar-heart')} Book Kiko for your event</a></div>
+<a class="buddy" href="/book#enquire" data-buddy aria-label="Book Kiko for your event" data-track="buddy_book"><span class="buddy-bubble">Want me at your event?</span><span class="buddy-art" aria-hidden="true"></span></a>
+<div class="book-bar" aria-hidden="true"><a class="btn btn-ink" href="{'#check' if page['file'] == 'index.html' else '/book#enquire'}" tabindex="-1" data-track="bar_book">Is Kiko free? {ARROW}</a></div>
 <script src="/assets/js/config.js?v={page['v']}"></script>
 <script src="/assets/js/gsap.min.js" defer></script>
 <script src="/assets/js/ScrollTrigger.min.js" defer></script>
-<script src="/assets/js/lenis.min.js" defer></script>
 <script src="/assets/js/kiko.js?v={page['v']}" defer></script>
 </body>
 </html>

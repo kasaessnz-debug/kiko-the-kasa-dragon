@@ -79,3 +79,11 @@ Ahead of Australia’s Children’s Online Privacy Code (due by 10 Dec 2026). No
 - `book.html`, `_src/pages.py`: unticked box "Send me occasional Kiko news and event ideas (18+)".
 - `netlify/functions/submission-created.js`: booking joins the Brevo list only if that box is ticked; contact no longer joins. Shop sign-up unchanged.
 - `admin.html`: "Delete someone’s details" side panel; label for the new field. New `CLAUDE.md` holds the same checklist, blocked from the public site in `netlify.toml`.
+
+## 2026-11-26: v2 redesign
+- New toy-box design with Titan One + Figtree fonts.
+- Real Kiko cut-outs.
+- Homepage: Pick your visit, Dress up Kiko, Kasa trust block, "Got a date?" (check-date form saved as a booking in Kiko HQ).
+- Gallery: Watch Kiko video ring.
+- Lenis removed.
+- Rollback tag: pre-redesign-2026-11-26.

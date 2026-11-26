@@ -88,77 +88,56 @@ def wave_art(sizes, alt=None, lazy=True):
     return body + hand + lids('wave')
 
 
+# ---- v2 design: the real Kiko as a die-cut sticker (cut-outs of the real costume photos)
+CUT = {'wave': 'stand', 'wave-r': 'point', 'open': 'thumbs', 'stand': 'stand', 'point': 'point', 'thumbs': 'thumbs', 'portrait': 'portrait'}
+CUT_W = {'stand': (405, 851), 'point': (365, 766), 'thumbs': (450, 945), 'portrait': (465, 976)}  # (700-tall width, 1470-tall width); outline + shadow are baked into the images
+CUT_ALT = {'stand': 'The real Kiko costume standing with his wings out', 'point': 'The real Kiko costume pointing and smiling',
+           'thumbs': 'The real Kiko costume giving two thumbs up', 'portrait': 'The real Kiko costume with a big toothy grin'}
+
+
+def sticker(key, sizes='(max-width:560px) 200px, 360px', alt=None, lazy=True, flip=False, cls=''):
+    k = CUT.get(key, key); w7, w14 = CUT_W[k]
+    a = CUT_ALT[k] if alt is None else alt
+    load = 'loading="lazy" decoding="async"' if lazy else 'fetchpriority="high"'
+    c = ' '.join(x for x in ('sticker', cls, 'flip' if flip else '') if x)
+    return (f'<img class="{c}" src="/assets/img/real/cut-{k}-1400.webp" srcset="/assets/img/real/cut-{k}-700.webp {w7}w, /assets/img/real/cut-{k}-1400.webp {w14}w" '
+            f'sizes="{sizes}" width="{w14}" height="1470" alt="{a}" {load}>')
+
+
 def live_wave(sizes, alt=None, lazy=True):
-    return (f'<div class="kiko-live" data-react><span class="bubble" data-bubble aria-live="polite"></span>'
-            f'<div class="kiko-art">{wave_art(sizes, alt, lazy)}</div></div>')
+    return sticker('wave', sizes, alt, lazy)
 
 
 def live(key, sizes, alt=None, lazy=True, flip=False, bubble=True):
-    """A Kiko that blinks, looks at you, and reacts to hover/tap."""
-    style = ' style="transform:scaleX(-1)"' if flip else ''
-    b = '<span class="bubble" data-bubble aria-live="polite"></span>' if bubble else ''
-    return (f'<div class="kiko-live" data-react>{b}<div class="kiko-art"{style}>'
-            f'{pic(key, sizes, alt=alt, lazy=lazy)}{lids(key)}</div></div>')
-
-
-def kiko_pop(key='wave', extra_cls='', hint=False, flip=False):
-    style = ' style="transform:scaleX(-1)"' if flip else ''
-    h = '<span class="tap-hint" aria-hidden="true">Say hi!</span>' if hint else ''
-    return f'''<div class="kiko-pop {extra_cls}" data-kiko>
-    <div class="kiko-body" data-kiko-body role="button" tabindex="0" aria-label="Say hello to Kiko">
-      <span class="bubble" data-bubble aria-live="polite"></span>
-      <div class="kiko-tilt" data-tilt><div class="kiko-breath" data-breath><div class="kiko-art"{style}>{wave_art("(max-width:900px) 78vw, 46vw", lazy=False) if key == 'wave' else pic(key, "(max-width:900px) 78vw, 46vw", lazy=False) + lids(key)}</div></div></div>
-      <span class="shadow" data-shadow></span>
-    </div>{h}
-  </div>'''
-
-
-PEEK = ('<div class="po po-back" aria-hidden="true"><div class="kiko-live" data-react><span class="bubble" data-bubble></span><div class="kiko-art">' + "{IMG}" + lids('open') + '</div></div></div>'
-        '<div class="po po-front" aria-hidden="true">' + "{IMG}" + '</div>')
+    return sticker(key, sizes, alt, lazy, flip)
 
 
 def peek_html():
-    img = pic('open', '(max-width:700px) 260px, 420px', alt='')
-    return PEEK.replace('{IMG}', img)
+    return '<img class="peek sticker" src="/assets/img/real/cut-portrait-700.webp" width="465" height="700" alt="" loading="lazy">'
 
 
 def add_peek(html):
-    """Wrap every form-shell that is marked data-peek with Kiko peeking over its top edge."""
-    out, i = '', 0
-    while True:
-        j = html.find('<div class="form-shell" data-peek>', i)
-        if j < 0:
-            return out + html[i:]
-        # find the matching closing div
-        k, depth = j, 0
-        while True:
-            o = html.find('<div', k); c = html.find('</div>', k)
-            if o != -1 and o < c:
-                depth += 1; k = o + 4
-            else:
-                depth -= 1; k = c + 6
-                if depth == 0:
-                    break
-        out += html[i:j] + '<div class="peek-wrap" data-peekwrap>' + peek_html() + html[j:k] + '</div>'
-        i = k
+    """Kiko peeks over the top of every form marked data-peek."""
+    return html.replace('<div class="form-shell" data-peek>', '<div class="peek-wrap">' + peek_html() + '<div class="form-shell">').replace('<!--/peek-->', '</div>')
+
+
+FLOATS = ('<div class="float" data-depth="-24" style="left:52%;top:10%" aria-hidden="true"><svg viewBox="0 0 60 60"><path d="M30 4l7 17 18 1-14 11 5 18-16-10-16 10 5-18L5 22l18-1z" fill="#fff" stroke="#141414" stroke-width="4" stroke-linejoin="round"/></svg></div>'
+          '<div class="float" data-depth="30" style="right:6%;top:14%" aria-hidden="true"><svg viewBox="0 0 60 56"><path d="M30 52S4 36 4 18C4 9 11 4 18 4c6 0 10 4 12 8 2-4 6-8 12-8 7 0 14 5 14 14 0 18-26 34-26 34z" fill="#FF8FA3" stroke="#141414" stroke-width="4" stroke-linejoin="round"/></svg></div>')
 
 
 def inner_hero(title, lede, crumb, key='wave', variant='', buttons='', flip=False):
-    pop_cls = 'open' if key == 'open' else ''
-    return f'''<section class="hero" aria-labelledby="page-title">
-  <div class="stage" data-stage>
-    <div class="stage-frame short" data-frame>
-      {{{{scene}}}}
-      <div class="stage-copy" data-hero-copy>
-        <p class="crumbs"><a href="/">Home</a> / {crumb}</p>
-        <h1 id="page-title">{title}</h1>
-        <p class="lede">{lede}</p>
-        {buttons}
-      </div>
+    return f'''<section class="page-hero" aria-labelledby="page-title"><div class="wrap">
+  <div class="ph-box" data-hero-box>
+    {FLOATS}
+    <div class="ph-copy">
+      <p class="crumbs"><a href="/">Home</a> / {crumb}</p>
+      <h1 id="page-title">{title}</h1>
+      <p class="lede">{lede}</p>
+      {buttons}
     </div>
-    {kiko_pop(key, pop_cls, flip=flip)}
+    <div class="ph-kiko" data-hero-kiko>{sticker(key, '(max-width:560px) 170px, (max-width:960px) 220px, 340px', lazy=False, flip=flip)}</div>
   </div>
-</section>'''
+</div></section>'''
 
 
 def values_list():
@@ -191,119 +170,63 @@ def types_grid():
 
 
 # ------------------------------------------------------------------ HOME
-HOME = '''
-<section class="hero" aria-labelledby="h-hero">
-  <div class="stage" data-stage data-hero-home>
-    <div class="stage-frame" data-frame>
-      {{scene}}
-      <div class="stage-copy" data-hero-copy>
-        <h1 id="h-hero">Big Adventures.<br>Brighter Tomorrows.</h1>
-        <p class="lede">Meet Kiko — The KASA Dragon, spreading kindness, joy and brighter futures for children, families and communities across Australia.</p>
-        <div class="btn-row">
-          <a class="btn" href="/about">Meet Kiko</a>
-          <a class="btn btn-white" href="/book#enquire" data-track="hero_book">{{i:calendar-heart}} Book Kiko</a>
-        </div>
-        ''' + values_list() + '''
-      </div>
-    </div>
-    ''' + kiko_pop('wave') + '''
-  </div>
-</section>
+REELS = [  # (video key or photo key, label, made with AI?)
+    ('v:ray-white', 'Office visit', False), ('p:point', 'Photoshoot', False), ('v:tram', 'Tram ride', True), ('v:hello', 'Hello!', False),
+    ('v:orbit', 'Party time', True), ('p:thumbs', 'Thumbs up', False), ('v:my-name', 'My name is Kiko', False), ('v:highfive', 'High five!', True),
+    ('p:street', 'Street style', False)]
+SND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path class="x" d="M16 9l5 6M21 9l-5 6"/></svg>'
 
-<section class="band band-mint" id="meet" aria-labelledby="h-meet">
-  [[wave:#fff]]
-  <div class="wrap split">
-    <div class="portal" data-portal>
-      <div class="ring"></div><div class="disc"></div>
-      <div class="riser"><div class="riser-art wave" data-riser>''' + live_wave('(max-width:900px) 60vw, 360px', alt='Kiko waving hello') + '''</div></div><div class="hill" aria-hidden="true"><svg viewBox="0 0 1000 300" preserveAspectRatio="none"><path d="M0,300 C10,170 90,50 230,40 C360,30 420,100 520,110 C640,122 720,60 830,70 C950,82 995,190 1000,300Z" fill="#7cc548"/><path d="M40,300 C80,210 200,150 330,160 C460,170 560,200 680,180 C800,160 930,200 970,300Z" fill="#5fa420"/><g fill="#ffd23f"><circle cx="200" cy="80" r="10"/><circle cx="235" cy="66" r="8"/><circle cx="262" cy="86" r="9"/><circle cx="790" cy="100" r="10"/><circle cx="822" cy="88" r="8"/><circle cx="850" cy="104" r="9"/><circle cx="420" cy="215" r="8"/><circle cx="640" cy="230" r="9"/></g></svg></div>
-    </div>
-    <div>
-      <p class="note">Hi, I’m Kiko!</p>
-      <h2 id="h-meet">A curious, caring and courageous dragon.</h2>
-      <p class="lede">A big personality and an even bigger heart. Kiko loves meeting new people, discovering new places and creating moments that bring families and communities together.</p>
-      <a class="btn" href="/about">Learn more about Kiko</a>
-      <div class="meet-extra">
-        <figure class="polaroid"><span class="tape"></span>''' + pic('coast', '260px', alt='Kiko looking out over the Australian coast') + '''<figcaption>Coast adventures! – Kiko</figcaption></figure>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section class="band band-butter real" id="real-kiko" aria-labelledby="h-real">
-  [[wave:#e9f7e6]]
-  <div class="wrap">
-    <div class="split wide-left" style="align-items:end">
-      <div><p class="note orange">Yes, he’s real!</p><h2 id="h-real">Meet Kiko in real life.</h2></div>
-      <p class="lede">Big scaly waves, high-fives, hugs and photos everyone keeps — this is exactly who turns up at your event.</p>
-    </div>
-    <div class="real-row" data-real-row>
-      ''' + video('hello') + snap('r-point', 'Hi friend!', '-3') + video('my-name') + snap('r-portrait', 'Is that a camera?', '3') + '''
-    </div>
-    <div class="btn-row"><a class="btn" href="/book#enquire" data-track="real_book">{{i:calendar-heart}} Book the real Kiko</a><a class="btn btn-white" href="/gallery">More photos &amp; videos</a></div>
-  </div>
-</section>
+def reel_rows():
+    def card(item, k):
+        src, label, ai = item
+        rot = ((k % 3) - 1) * 2.2
+        h = f'<div class="reel" style="--rot:{rot:.1f}deg"><span class="pl"><i></i>@kikothekasadragon</span>'
+        kind, key = src.split(':')
+        if kind == 'v':
+            h += (f'<video muted loop playsinline preload="none" poster="/assets/video/kiko-{key}-poster.webp" data-src="/assets/video/kiko-{key}.mp4" aria-label="{label}"></video>'
+                  f'<button class="snd" type="button" aria-pressed="false" aria-label="Turn sound on">{SND}</button>')
+        else:
+            h += f'<img src="/assets/img/real/kiko-{key}-480.webp" alt="{label}" loading="lazy" width="480" height="720">'
+        return h + '</div>'
+    rows = ''
+    for r, items in (('A', REELS), ('B', REELS[::-1])):
+        cards = ''.join(card(it, k + n) for n in range(3) for k, it in enumerate(items))
+        rows += f'<div class="reel-row" data-reel-row="{r}"{" aria-hidden=\"true\"" if r == "B" else ""}>{cards}</div>'
+    return rows
 
-<section class="band band-sky" id="adventures" aria-labelledby="h-adv">
-  [[wave:#fff6d8]]
-  <div class="wrap split wide-right">
-    <div>
-      <p class="note orange">New places. New friends. Bigger adventures.</p>
-      <h2 id="h-adv">Exploring. Learning. Smiling.</h2>
-      <p class="lede">From schools and sporting events to festivals, community celebrations and special places, Kiko loves exploring Australia and making new friends along the way.</p>
-      <a class="btn" href="/adventures">See the adventures</a>
-      <nav class="signpost" aria-label="Where Kiko goes" data-signs>
-        <a class="sign" href="/adventures#schools">{{i:graduation-cap}} Schools</a>
-        <a class="sign" href="/adventures#community-events">{{i:tent}} Community events</a>
-        <a class="sign" href="/adventures#sport">{{i:trophy}} Sport</a>
-        <a class="sign" href="/adventures#special-places">{{i:map-pin}} Special places</a>
-        <a class="sign" href="/adventures#kindness-missions">{{i:heart}} Kindness missions</a>
-      </nav>
-    </div>
-    <div class="adv-card" data-parallax-img>''' + pic('coast', '(max-width:900px) 92vw, 680px') + '''<span class="tag">Postcard from the coast</span></div>
-  </div>
-</section>
 
-<section class="band band-blush" id="gives-back" aria-labelledby="h-give">
-  [[wave:#e4f5ff]]
-  <div class="wrap split" style="position:relative;z-index:3">
-    <div>
-      <p class="note pink">Kindness is at the heart of Kiko.</p>
-      <h2 id="h-give">Little moments. Big smiles.</h2>
-      <p class="lede">Through community appearances, partnerships and special initiatives, Kiko aims to support children, families and organisations doing meaningful work across Australia.</p>
-      <a class="btn btn-pink" href="/gives-back">Discover Kiko Gives Back</a>
-    </div>
-    <div class="peek-wrap list-peek" data-peekwrap>''' + peek_html() + '''<ul class="areas" aria-label="Areas Kiko can support">
-      <li><span class="dot c-pink">{{i:heart}}</span>Children &amp; Families</li>
-      <li><span class="dot c-gum">{{i:users}}</span>Community</li>
-      <li><span class="dot c-sky">{{i:graduation-cap}}</span>Education</li>
-      <li><span class="dot c-orange">{{i:heart-pulse}}</span>Health &amp; Wellbeing</li>
-      <li><span class="dot c-sun">{{i:star}}</span>Brighter Futures</li>
-    </ul></div>
-  </div>
-</section>
+FOLLOW = ''.join(f'<a href="{u}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="/assets/icons.svg#s-{k}"/></svg>{n}</a>' for k, u, n in (
+    ('instagram', 'https://www.instagram.com/kikothekasadragon/', 'Instagram'), ('facebook', 'https://www.facebook.com/profile.php?id=61593852687662', 'Facebook'),
+    ('youtube', 'https://www.youtube.com/@KikoTheKasaDragon', 'YouTube')))
 
-<section class="band band-white" id="book" aria-labelledby="h-book">
-  [[wave:#ffebf2]]
-  <div class="wrap">
-    <div class="split wide-left" style="align-items:end">
-      <div><p class="note">Book Kiko for your event</p><h2 id="h-book">Bring Kiko’s energy, colour and personality to your next event.</h2></div>
-      <p class="lede">Pick your kind of event to start an enquiry — we’ll come back to you with availability and a quote.</p>
-    </div>
-    ''' + types_grid() + '''
-    <div class="btn-row"><a class="btn" href="/book#enquire" data-track="home_book">{{i:calendar-heart}} Enquire about Kiko</a></div>
-  </div>
-</section>
 
-<section class="dusk" aria-labelledby="h-close">
-  {{scene:dusk}}
-  <div class="wrap dusk-copy">
-    <blockquote>“Kind little moments can make a big difference.” — Kiko</blockquote>
-    <h2 id="h-close">Let’s make tomorrow brighter together.</h2>
-    <div class="btn-row" style="justify-content:center"><a class="btn btn-sun" href="/book#enquire">Book Kiko</a><a class="btn btn-white" href="/gives-back#get-involved">Get involved</a></div>
-  </div>
-  <div class="dusk-kiko"><div class="dusk-art" data-rise>''' + live('open', '(max-width:700px) 92vw, 640px', alt='Kiko rising over the horizon at sunset') + '''</div></div>
-</section>
-'''
+WATCH = [  # (video key, title, real?)
+    ('tram', 'Tram ride into the city', False), ('ray-white', 'Visiting the Ray White team', True),
+    ('highfive', 'High five!', False), ('hello', 'Kiko says hello', True), ('my-name', '“My name is Kiko!”', True)]
+
+
+def watch_slides():
+    out = ''
+    for i, (k, t, real) in enumerate(WATCH):
+        chip = ''
+        out += (f'<figure class="vs-slide" data-vs-slide aria-label="{i + 1} of {len(WATCH)}: {t}"><div class="vs-frame">'
+                f'<video muted loop playsinline preload="none" poster="/assets/video/kiko-{k}-poster.webp" data-src="/assets/video/kiko-{k}.mp4"></video>'
+                f'{chip}<button class="snd" type="button" aria-pressed="false" aria-label="Turn sound on">{SND}</button></div>'
+                f'<figcaption>{t}</figcaption></figure>')
+    dots = ''.join(f'<button type="button" aria-label="Video {i + 1}"></button>' for i in range(len(WATCH)))
+    return f'<div class="vs" data-vs><div class="vs-ring" data-vs-track>{out}</div><div class="vs-dots" data-vs-dots>{dots}</div></div>'
+
+
+def cut_tokens(html):
+    import re
+    def rep(m):
+        key, load, alt = m.group(1), m.group(2), m.group(3)
+        return sticker(key, '(max-width:560px) 220px, 420px', alt=alt, lazy=(load != 'eager'))
+    return re.sub(r'\{\{cut:(\w+):(\w+):([^}]*)\}\}', rep, html)
+
+
+HOME = cut_tokens(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'home.html')).read()).replace('{{reels}}', reel_rows()).replace('{{watch}}', watch_slides()).replace('{{follow}}', FOLLOW)
 
 # ------------------------------------------------------------------ ABOUT
 ABOUT = inner_hero('About Kiko', 'A kinder, brighter Australia — one smile at a time.', 'About Kiko', 'open',
@@ -426,7 +349,7 @@ ADVENTURES = inner_hero('Kiko’s Adventures', 'Exploring. Learning. Smiling. Ma
     <h2 id="h-snaps">Snapshots from Kiko’s adventures</h2>
     <p class="lede">Follow Kiko as the journey grows. New adventures, new friends and new memories will be added here.</p>
     <div class="split" style="margin-top:30px;align-items:stretch">
-      <figure class="postcard" style="margin:0">
+      <figure class="postcard" style="margin:0"><span class="illus">Illustration</span>
         ''' + pic('coast', '(max-width:760px) 92vw, 340px') + '''
         <figcaption class="pc-body"><span class="stamp">{{i:map-pin}}</span><h3>Postcard from the coast</h3><p>Backpack on, sea breeze in his spikes. Kiko’s first postcard from the Australian coastline — and the start of a big adventure story.</p></figcaption>
       </figure>
@@ -671,7 +594,7 @@ BOOK = inner_hero('Bring Kiko to your event', 'Big smiles. Big energy. One unfor
         </div>
       </form>
       <p class="form-foot">For partnerships, media or community opportunities, please use our <a href="/contact">Contact page</a>. Prefer to talk? Call {{tel}}.</p>
-    </div>
+    </div><!--/peek-->
   </div>
 </section>
 
@@ -722,6 +645,13 @@ DEPOSIT = inner_hero('Secure your Kiko booking', 'Pay your booking deposit secur
 
 # ------------------------------------------------------------------ GALLERY
 GALLERY = inner_hero('Kiko’s Gallery', 'Big adventures deserve big memories.', 'Gallery', 'open') + '''
+<section class="sec watch" id="watch" aria-labelledby="h-watch">
+  <div class="wrap sec-h"><h2 id="h-watch">Watch Kiko.</h2>
+    <div class="vs-nav"><button class="vs-arrow" type="button" data-vs-prev aria-label="Previous video">{{arrow}}</button><button class="vs-arrow" type="button" data-vs-next aria-label="Next video">{{arrow}}</button></div>
+  </div>
+  ''' + watch_slides() + '''
+  <p class="vs-foot">Swipe or use the arrows. Some scenes are made with AI.</p>
+</section>
 <section class="section">
   <div class="wrap">
     <p class="lede">The real Kiko, in real life. Tap any photo to see it big, and turn the sound on in the videos. Photos from Kiko’s events land here as his adventures grow.</p>
@@ -775,9 +705,9 @@ SHOP = inner_hero('The Kiko Shop', 'Take a little Kiko adventure home with you.'
           <div class="field full"><span class="legend">I’m most excited about <span class="opt">(optional)</span></span><div class="pick"><label><input type="checkbox" name="interest" value="Plush toys"><span>Plush toys</span></label><label><input type="checkbox" name="interest" value="Storybooks"><span>Storybooks</span></label><label><input type="checkbox" name="interest" value="Apparel"><span>Apparel</span></label><label><input type="checkbox" name="interest" value="School gear"><span>School gear</span></label></div></div>
         </div>
         <div class="form-nav"><button class="btn" type="submit">{{i:send}} Keep me updated</button></div>
-        <p style="margin:14px 0 0;font-size:.92rem;color:var(--forest-2)">You must be 18 or over to sign up. Under 18? Ask a parent or guardian to sign up for you.</p>
+        <p class="form-foot">You must be 18 or over to sign up. Under 18? Ask a parent or guardian to sign up for you.</p>
       </form>
-    </div>
+    </div><!--/peek-->
   </div>
 </section>
 '''
@@ -811,7 +741,7 @@ CONTACT = inner_hero('Say hello to Kiko', 'Big adventures often start with a sim
         </div>
         <div class="form-nav"><button class="btn" type="submit">{{i:send}} Send message</button></div>
       </form>
-    </div>
+    </div><!--/peek-->
   </div>
 </section>
 '''
@@ -835,8 +765,8 @@ NOTFOUND = inner_hero('Kiko got a little lost', 'This page has wandered off on i
 
 PRIVACY = '''
 <section class="section" style="padding-top:150px">
-  <div class="wrap measure">
-    <h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Privacy Policy</h1>
+  <div class="wrap measure legal-page">
+    <h1>Privacy Policy</h1>
     <p><i>Last updated: November 2026</i></p>
     <p>Kiko — The KASA Dragon is created and owned by KASA Essentials Pty Ltd (“we”, “us”). We respect your privacy and handle personal information in line with the <i>Privacy Act 1988</i> (Cth) and the Australian Privacy Principles.</p>
     <h3>What we collect</h3>
@@ -857,8 +787,8 @@ PRIVACY = '''
 
 TERMS = '''
 <section class="section" style="padding-top:150px">
-  <div class="wrap measure">
-    <h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Terms of Use &amp; Booking Terms</h1>
+  <div class="wrap measure legal-page">
+    <h1>Terms of Use &amp; Booking Terms</h1>
     <p><i>Last updated: October 2026</i></p>
     <p>This website and Kiko — The KASA Dragon appearances are provided by KASA Essentials Pty Ltd (“we”, “us”). By using this site or booking Kiko you agree to these terms. Nothing in these terms limits your rights under the Australian Consumer Law.</p>
     <h3>1. Enquiries and quotes</h3>
@@ -895,44 +825,46 @@ CONTACT = add_peek(CONTACT)
 
 # ------------------------------------------------------------------ SCHOOL EVENTS
 # Written by hand on 2 Nov 2026 (while this generator was on the laptop); kept as finished HTML.
-SCHOOL = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'school_events.html')).read()
+_SCHOOL = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'school_events.html')).read()
+SCHOOL = inner_hero('Kiko at school events', 'A friendly green dragon for your school fete, sports day or kindness week.', 'School Events', 'open',
+                    buttons='<div class="btn-row"><a class="btn" href="/book?type=Schools#enquire" data-track="school_book">Book Kiko</a><a class="btn btn-white" href="#booking">How booking works</a></div>') + _SCHOOL[_SCHOOL.index('</section>') + len('</section>'):]
 
 PAGES = [
     dict(file='index.html', key='home', crumb='Home', prio='1.0', body=HOME,
          title='Kiko — The KASA Dragon | Mascot from Melbourne, Australia',
          desc='Meet Kiko — The KASA Dragon. Book Kiko for schools, festivals, sporting events, shopping centres, corporate family days and charity events across Australia.',
          schema=[SERVICE_SCHEMA] + [v for v in VIDEO_SCHEMA if 'ray-white' not in v['contentUrl']]),
-    dict(file='about.html', key='about', crumb='About Kiko', body=ABOUT, preload='/assets/img/kiko-open-1400.webp',
+    dict(file='about.html', key='about', crumb='About Kiko', body=ABOUT, hero='open',
          title='About Kiko — The KASA Dragon | A kinder, brighter Australia',
          desc='Kiko — The KASA Dragon is a friendly, playful and caring Australian character created to bring smiles, spark imagination and encourage kindness.'),
-    dict(file='adventures.html', key='adventures', crumb='Adventures', body=ADVENTURES, preload='/assets/img/kiko-wave-r-900.webp',
+    dict(file='adventures.html', key='adventures', crumb='Adventures', body=ADVENTURES, hero='wave-r',
          title='Kiko’s Adventures | Schools, festivals, sport and special places', schema=[v for v in VIDEO_SCHEMA if 'ray-white' in v['contentUrl']],
          desc='Follow Kiko — The KASA Dragon to schools, community events, sporting occasions and special places across Australia. Invite Kiko to your next event.'),
-    dict(file='gives-back.html', key='gives', crumb='Kiko Gives Back', body=GIVES, preload='/assets/img/kiko-open-1400.webp',
+    dict(file='gives-back.html', key='gives', crumb='Kiko Gives Back', body=GIVES, hero='open',
          title='Kiko Gives Back | Stronger communities, brighter futures',
          desc='Kiko Gives Back supports children, families, schools, charities and community organisations across Australia. Partner with Kiko or invite him to a community event.'),
     dict(file='book.html', key='book', crumb='Events & Bookings', prio='0.9', body=BOOK,
          title='Book Kiko — Dragon mascot from Melbourne, across Australia',
          desc='Book Kiko — The KASA Dragon for your school, festival, sporting event, shopping centre, council event, corporate family day or fundraiser. Send an enquiry for a quote.',
          schema=[SERVICE_SCHEMA, FAQ_SCHEMA]),
-    dict(file='school-events.html', key='school-events', crumb='School Events', body=SCHOOL, preload='/assets/img/kiko-open-1400.webp',
+    dict(file='school-events.html', key='school-events', crumb='School Events', body=SCHOOL, hero='open',
          title='Kiko at School Events | Fetes, sports days, kindness weeks',
          desc='What a Kiko visit looks like at a school fete, sports day or kindness week, who books it, and how the quote and deposit work. Book Kiko — The KASA Dragon.'),
-    dict(file='deposit.html', key='deposit', crumb='Booking deposit', body=DEPOSIT, noindex=True, preload='/assets/img/kiko-wave-r-900.webp',
+    dict(file='deposit.html', key='deposit', crumb='Booking deposit', body=DEPOSIT, noindex=True, hero='wave-r',
          title='Pay your booking deposit | Kiko — The KASA Dragon', desc='Secure your Kiko — The KASA Dragon booking with a deposit paid through Stripe.'),
-    dict(file='gallery.html', key='gallery', crumb='Gallery', body=GALLERY, preload='/assets/img/kiko-open-1400.webp',
+    dict(file='gallery.html', key='gallery', crumb='Gallery', body=GALLERY, hero='open',
          title='Photos & videos of the real Kiko | Kiko — The KASA Dragon', desc='See the real Kiko — The KASA Dragon mascot: photos and videos of Australia’s friendliest dragon, ready for your school, festival or community event.',
          schema=VIDEO_SCHEMA + [GALLERY_SCHEMA]),
     dict(file='shop.html', key='shop', crumb='Shop', body=SHOP,
          title='The Kiko Shop — coming soon | Kiko — The KASA Dragon', desc='Kiko plush toys, storybooks, apparel and more are on the way. Join the list to be first to hear.'),
     dict(file='contact.html', key='contact', crumb='Contact', body=CONTACT,
          title='Contact Kiko — The KASA Dragon | Partnerships, media and enquiries', desc='Get in touch about bookings, partnerships, sponsorship, schools, charity initiatives, media, brand collaborations and licensing.'),
-    dict(file='thank-you.html', key='thanks', crumb='Thank you', body=THANKS, noindex=True, preload='/assets/img/kiko-open-1400.webp',
+    dict(file='thank-you.html', key='thanks', crumb='Thank you', body=THANKS, noindex=True, hero='open',
          title='Thank you | Kiko — The KASA Dragon', desc='Thanks for getting in touch with Kiko — The KASA Dragon.'),
-    dict(file='404.html', key='notfound', crumb='Not found', body=NOTFOUND, noindex=True, preload='/assets/img/kiko-wave-r-900.webp',
+    dict(file='404.html', key='notfound', crumb='Not found', body=NOTFOUND, noindex=True, hero='wave-r',
          title='Page not found | Kiko — The KASA Dragon', desc='This page wandered off on its own adventure.'),
-    dict(file='privacy.html', key='privacy', crumb='Privacy Policy', body=PRIVACY, prio='0.2',
+    dict(file='privacy.html', key='privacy', crumb='Privacy Policy', body=PRIVACY, prio='0.2', hero='',
          title='Privacy Policy | Kiko — The KASA Dragon', desc='How KASA Essentials handles personal information collected through the Kiko website.'),
-    dict(file='terms.html', key='terms', crumb='Terms of Use', body=TERMS, prio='0.2',
+    dict(file='terms.html', key='terms', crumb='Terms of Use', body=TERMS, prio='0.2', hero='',
          title='Terms of Use | Kiko — The KASA Dragon', desc='Terms for using the Kiko — The KASA Dragon website.'),
 ]
